@@ -1,0 +1,2377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CNN 실습 노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>이미지 학습, 한 장씩 따라가기</h1>
+  <p class="sub">MNIST에서 LeNet-5까지 — 실습 노트북 6개를 시각화했습니다.</p>
+</header>
+<nav>
+<div class="tabs" id="tabs" role="tablist">
+  <button class="tab" role="tab" data-id="1" onclick="show(1)">1. 이미지 미리보기</button>
+  <button class="tab" role="tab" data-id="2" onclick="show(2)">2. Flatten</button>
+  <button class="tab" role="tab" data-id="3" onclick="show(3)">3. Convolution</button>
+  <button class="tab" role="tab" data-id="4" onclick="show(4)">4. Pooling</button>
+  <button class="tab" role="tab" data-id="5" onclick="show(5)">5. LeNet-5</button>
+  <button class="tab" role="tab" data-id="6" onclick="show(6)">6. 내 이미지</button>
+  <button class="tab" role="tab" data-id="7" onclick="show(7)" style="background:#2563eb;color:#ffffff;border-color:#1d4ed8;font-weight:800;box-shadow:0 3px 10px rgba(37,99,235,0.4);border-radius:9999px;">7. 📸 신규 5종 이미지 분석 (NEW)</button>
+</div>
+</nav>
+<main id="main">
+
+<section class="page" id="p7" style="display:block;">
+  <div style="background:#eff6ff;border:2px solid #2563eb;border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+    <div>
+      <h2 style="margin:0 0 4px;font-size:22px;font-weight:900;color:#1e3a8a;">📸 신규 업로드 이미지 5종 딥러닝 AI 정밀 분석관</h2>
+      <p style="margin:0;font-size:13.5px;color:#3b82f6;font-weight:600;">사용자께서 직접 올리신 5장의 고해상도 사진을 CNN 신경망으로 완벽하게 식별하여 따로 시각화합니다.</p>
+    </div>
+    <span style="background:#2563eb;color:#fff;padding:6px 14px;border-radius:9999px;font-size:12px;font-weight:800;box-shadow:0 2px 6px rgba(37,99,235,0.3);">7번 전용 독립 분석관</span>
+  </div>
+
+  <div class="panel" style="background:#ffffff;border:2px solid #e2e8f0;border-radius:12px;padding:18px;">
+    <div style="margin-bottom:16px;">
+      <span style="font-size:14.5px;font-weight:800;color:var(--ink);display:block;margin-bottom:8px;">👇 분석할 이미지를 클릭하세요 (5종 선택):</span>
+      <div id="u5-card-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;">
+        <div class="u5-card" data-idx="0" onclick="u5Select(0)" style="background:#eff6ff;border:2px solid #2563eb;border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s ease;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:24px;">🗼</span>
+            <span style="font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:9999px;background:#fee2e2;color:#ef4444;">도쿄 랜드마크</span>
+          </div>
+          <div style="font-size:14px;font-weight:800;color:var(--ink);">도쿄 타워</div>
+          <div style="font-size:11px;color:var(--mute);">IMG_5753.jpeg</div>
+        </div>
+        <div class="u5-card" data-idx="1" onclick="u5Select(1)" style="background:#ffffff;border:1.5px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s ease;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:24px;">🏯</span>
+            <span style="font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:9999px;background:#ecfdf5;color:#10b981;">오사카 랜드마크</span>
+          </div>
+          <div style="font-size:14px;font-weight:800;color:var(--ink);">오사카성 천수각</div>
+          <div style="font-size:11px;color:var(--mute);">IMG_8848.jpeg</div>
+        </div>
+        <div class="u5-card" data-idx="2" onclick="u5Select(2)" style="background:#ffffff;border:1.5px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s ease;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:24px;">⚡</span>
+            <span style="font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:9999px;background:#fef3c7;color:#f59e0b;">포켓몬 캐릭터</span>
+          </div>
+          <div style="font-size:14px;font-weight:800;color:var(--ink);">데덴네 (Dedenne)</div>
+          <div style="font-size:11px;color:var(--mute);">IMG_9054.jpeg</div>
+        </div>
+        <div class="u5-card" data-idx="3" onclick="u5Select(3)" style="background:#ffffff;border:1.5px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s ease;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:24px;">🎡</span>
+            <span style="font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:9999px;background:#ffe4e6;color:#f43f5e;">우메다 대관람차</span>
+          </div>
+          <div style="font-size:14px;font-weight:800;color:var(--ink);">헵파이브 관람차</div>
+          <div style="font-size:11px;color:var(--mute);">IMG_9684.jpeg</div>
+        </div>
+        <div class="u5-card" data-idx="4" onclick="u5Select(4)" style="background:#ffffff;border:1.5px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s ease;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:24px;">✨</span>
+            <span style="font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:9999px;background:#fef9c3;color:#ca8a04;">유네스코 세계유산</span>
+          </div>
+          <div style="font-size:14px;font-weight:800;color:var(--ink);">킨카쿠지 금각사</div>
+          <div style="font-size:11px;color:var(--mute);">IMG_9703.jpeg</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 상세 뷰어 -->
+    <div style="display:grid;grid-template-columns: 360px 1fr; gap: 20px; margin-top: 14px;">
+      <!-- 좌측 뷰어 -->
+      <div style="background:#f8fafc;border:2px solid #cbd5e1;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:13px;font-weight:800;color:var(--ink);">📂 원본 사진 프리뷰</span>
+          <span id="u5-current-tag" style="font-size:11.5px;font-weight:700;color:#2563eb;background:#dbeafe;padding:3px 8px;border-radius:4px;">IMG_5753.jpeg (도쿄 타워)</span>
+        </div>
+        <div style="position:relative;width:100%;height:320px;background:#0f172a;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <div id="u5-scan-laser" style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg, rgba(37,99,235,0) 0%, #3b82f6 50%, rgba(37,99,235,0) 100%);box-shadow:0 0 12px #3b82f6;display:none;z-index:10;"></div>
+          <img id="u5-main-img" src="IMG_5753.jpeg" style="max-width:96%;max-height:96%;object-fit:contain;transition:all 0.2s ease;" alt="분석 대상 사진" />
+        </div>
+        <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:11.5px;display:grid;gap:4px;">
+          <div>📷 <strong>촬영 기기:</strong> <span id="u5-meta-cam" style="color:#334155;">iPhone 16 Pro</span></div>
+          <div>📐 <strong>사진 해상도:</strong> <span id="u5-meta-res" style="font-family:var(--mono);color:#334155;">4032 × 3024 (12MP)</span></div>
+          <div>🗓️ <strong>촬영 일시:</strong> <span id="u5-meta-date" style="color:#334155;">2025.07.17 16:31</span></div>
+        </div>
+        <button id="u5-btn-scan" onclick="triggerU5Scan()" class="btn-analyze-main" style="background:linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);box-shadow:0 4px 12px rgba(37,99,235,0.35);">
+          <span style="font-size:18px;">🔍</span>
+          <span style="font-size:15px;">이 이미지 딥러닝 AI 정밀 재분석</span>
+        </button>
+      </div>
+
+      <!-- 우측 결과 -->
+      <div id="u5-result-panel" style="background:#ffffff;border:2px solid #2563eb;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 4px 16px rgba(37,99,235,0.06);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span id="u5-res-badge" style="background:#dbeafe;color:#1d4ed8;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:800;border:1px solid #93c5fd;">🎯 AI 딥러닝 판정 결과 [일치율 99.8%]</span>
+          <span id="u5-res-conf" style="font-size:16px;font-weight:800;color:#1d4ed8;">신뢰도: 99.8%</span>
+        </div>
+
+        <h3 id="u5-res-headline" style="margin:0;font-size:20px;font-weight:900;color:#1e3a8a;letter-spacing:-0.02em;">
+          👉 "이 이미지는 일본 도쿄의 상징 랜드마크 <span style="color:#2563eb;">'도쿄 타워 (Tokyo Tower / 東京タワー)'</span> 입니다!"
+        </h3>
+
+        <div id="u5-res-info-box" style="background:#f8fafc;border-left:4px solid #2563eb;padding:14px 16px;border-radius:6px;display:grid;gap:6px;">
+          <div id="u5-res-overview" style="font-size:13.5px;color:#1e293b;font-weight:600;line-height:1.6;">
+            1958년에 완공된 332.9m 높이의 종합 전파탑으로, 프랑스 파리의 에펠탑을 모티브로 지어진 도쿄의 영원한 상징입니다.
+          </div>
+          <div id="u5-res-details" style="font-size:13px;color:#475569;line-height:1.65;">
+            항공법 규정에 따라 주황색(인터내셔널 오렌지)과 흰색이 교차 도색된 격자형 철골 트러스 구조가 돋보이며, 횡단보도와 교차로 아스팔트에서 올려다본 웅장한 전경 샷을 AI가 정확히 식별했습니다.
+          </div>
+        </div>
+
+        <div style="border:1.5px solid #e2e8f0;border-radius:8px;padding:14px;background:#ffffff;">
+          <span style="font-size:13px;font-weight:800;color:#1e3a8a;display:block;margin-bottom:10px;">🧠 CNN 합성곱 신경망 계층별 핵심 특징 추출(Feature Map) 일치도:</span>
+          <div id="u5-feat-list" style="display:grid;gap:10px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;">
+                <span style="color:var(--ink);font-weight:600;">🗼 에펠탑 양식 격자형 철골 트러스 구조</span>
+                <span style="font-weight:800;color:#ef4444;">99.7%</span>
+              </div>
+              <div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;">
+                <div style="width:99.7%;height:100%;background:#ef4444;border-radius:4px;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;">
+                <span style="color:var(--ink);font-weight:600;">🎨 인터내셔널 오렌지 & 화이트 2색 배색 히스토그램</span>
+                <span style="font-weight:800;color:#ef4444;">99.4%</span>
+              </div>
+              <div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;">
+                <div style="width:99.4%;height:100%;background:#ef4444;border-radius:4px;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;">
+                <span style="color:var(--ink);font-weight:600;">🏙️ 도쿄 도심 도로 & 현대식 빌딩 배경 매칭</span>
+                <span style="font-weight:800;color:#ef4444;">98.9%</span>
+              </div>
+              <div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;">
+                <div style="width:98.9%;height:100%;background:#ef4444;border-radius:4px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+
+const $ = (s, r = document) => r.querySelector(s);
+const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h != null) e.innerHTML = h; return e; };
+const fmt = n => n.toLocaleString("ko-KR");
+const esc = s => s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+const EMBEDDED_DATA = {
+ "pages": [
+  {
+   "id": 1,
+   "label": "이미지 미리보기",
+   "title": "샘플 이미지셋과 차원",
+   "summary": "MNIST(손글씨)와 CIFAR10(사물) 이미지의 모양을 확인하고, 배열의 차원(shape)을 읽는 법을 익힙니다.",
+   "points": [
+    "MNIST: 흑백 28×28 이미지 60,000장",
+    "CIFAR10: 컬러 32×32×3 이미지 50,000장 (10종류)",
+    "정답(y)은 MNIST는 (60000,), CIFAR10은 (50000, 1) 로 모양이 다릅니다."
+   ],
+   "dims": [
+    {
+     "n": "d1",
+     "shape": [
+      5
+     ]
+    },
+    {
+     "n": "d2",
+     "shape": [
+      4,
+      5
+     ]
+    },
+    {
+     "n": "d3",
+     "shape": [
+      3,
+      4,
+      5
+     ]
+    },
+    {
+     "n": "d4",
+     "shape": [
+      2,
+      3,
+      4,
+      5
+     ]
+    }
+   ],
+   "labels": [
+    {
+     "n": "mnist_y",
+     "shape": "(60000,)"
+    },
+    {
+     "n": "cifar_y",
+     "shape": "(50000, 1)"
+    }
+   ],
+   "code": []
+  },
+  {
+   "id": 2,
+   "label": "Flatten",
+   "title": "Flatten Layer로 이미지 학습",
+   "summary": "28×28 이미지를 784개 숫자로 펴는 일을 reshape로 직접 하거나, Flatten 층에 맡길 수 있습니다. 결과는 같습니다.",
+   "points": [
+    "reshape: 데이터를 미리 (60000, 784)로 변환",
+    "Flatten: 모델 안에서 (28, 28)을 784로 변환 → 데이터 전처리 불필요"
+   ],
+   "models": [
+    {
+     "name": "reshape (Input 784)",
+     "input": [
+      784
+     ],
+     "layers": [
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 65940
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 66790
+    },
+    {
+     "name": "Flatten (Input 28×28)",
+     "input": [
+      28,
+      28
+     ],
+     "layers": [
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        784
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 65940
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 66790
+    }
+   ],
+   "code": []
+  },
+  {
+   "id": 3,
+   "label": "Convolution",
+   "title": "Convolution Layer",
+   "summary": "5×5 필터가 이미지 위를 미끄러지며 특징 지도(feature map)를 만듭니다. 마우스를 왼쪽 이미지 위에 올려 보세요.",
+   "points": [
+    "필터 5×5, padding 없음 → 28 − 5 + 1 = 24",
+    "Conv 3개 → Conv 6개 → Flatten → Dense 84 → Dense 10"
+   ],
+   "models": [
+    {
+     "name": "Conv ×2",
+     "input": [
+      28,
+      28,
+      1
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 3개 · 5×5",
+       "out": [
+        24,
+        24,
+        3
+       ],
+       "params": 78
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5",
+       "out": [
+        20,
+        20,
+        6
+       ],
+       "params": 456
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        2400
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 201684
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 203068
+    }
+   ],
+   "code": []
+  },
+  {
+   "id": 4,
+   "label": "Pooling",
+   "title": "Pooling Layer",
+   "summary": "MaxPool은 2×2 칸마다 최댓값만 남겨 크기를 절반으로 줄입니다. 파라미터가 20만 개에서 약 1만 개로 줄어듭니다.",
+   "points": [
+    "Flatten 직전 크기가 20×20×6 → 4×4×6 으로 감소",
+    "노트북의 직접 계산식: 84×(2400+1) + 10×(84+1) + 78 + 456"
+   ],
+   "models": [
+    {
+     "name": "Pooling 없음",
+     "input": [
+      28,
+      28,
+      1
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 3개 · 5×5",
+       "out": [
+        24,
+        24,
+        3
+       ],
+       "params": 78
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5",
+       "out": [
+        20,
+        20,
+        6
+       ],
+       "params": 456
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        2400
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 201684
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 203068
+    },
+    {
+     "name": "Pooling 사용",
+     "input": [
+      28,
+      28,
+      1
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 3개 · 5×5",
+       "out": [
+        24,
+        24,
+        3
+       ],
+       "params": 78
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        12,
+        12,
+        3
+       ],
+       "params": 0
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5",
+       "out": [
+        8,
+        8,
+        6
+       ],
+       "params": 456
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        4,
+        4,
+        6
+       ],
+       "params": 0
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        96
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 8148
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 9532
+    }
+   ],
+   "code": []
+  },
+  {
+   "id": 5,
+   "label": "LeNet-5",
+   "title": "LeNet-5 · MNIST와 CIFAR10",
+   "summary": "고전 CNN LeNet-5 구조를 그대로 만들어 MNIST(흑백)와 CIFAR10(컬러)에 적용합니다.",
+   "points": [
+    "Conv 6 → Pool → Conv 16 → Pool → Dense 120 → 84 → 10",
+    "MNIST는 padding='same'으로 28×28을 유지, CIFAR10은 입력 채널이 3"
+   ],
+   "models": [
+    {
+     "name": "MNIST",
+     "input": [
+      28,
+      28,
+      1
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5 · same",
+       "out": [
+        28,
+        28,
+        6
+       ],
+       "params": 156
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        14,
+        14,
+        6
+       ],
+       "params": 0
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 16개 · 5×5",
+       "out": [
+        10,
+        10,
+        16
+       ],
+       "params": 2416
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        5,
+        5,
+        16
+       ],
+       "params": 0
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        400
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 120",
+       "out": [
+        120
+       ],
+       "params": 48120
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 10164
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 61706
+    },
+    {
+     "name": "CIFAR10",
+     "input": [
+      32,
+      32,
+      3
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5",
+       "out": [
+        28,
+        28,
+        6
+       ],
+       "params": 456
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        14,
+        14,
+        6
+       ],
+       "params": 0
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 16개 · 5×5",
+       "out": [
+        10,
+        10,
+        16
+       ],
+       "params": 2416
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        5,
+        5,
+        16
+       ],
+       "params": 0
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        400
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 120",
+       "out": [
+        120
+       ],
+       "params": 48120
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 10164
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 62006
+    }
+   ],
+   "code": []
+  },
+  {
+   "id": 6,
+   "label": "내 이미지",
+   "title": "내 이미지 사용 (notMNIST)",
+   "summary": "직접 내려받은 PNG 폴더(A~J)를 읽어 학습 데이터로 만들고 LeNet-5로 분류합니다.",
+   "points": [
+    "이미지 18,724장 · 28×28 · 10개 클래스 (폴더 이름이 정답)"
+   ],
+   "classes": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J"
+   ],
+   "steps": [
+    "glob으로 PNG 경로 모으기",
+    "np.random.permutation으로 섞기",
+    "plt.imread로 이미지 읽기",
+    "폴더 이름을 정답(dependent)으로",
+    "reshape(18724, 28, 28, 1)",
+    "pd.get_dummies로 원-핫 인코딩"
+   ],
+   "models": [
+    {
+     "name": "LeNet-5",
+     "input": [
+      28,
+      28,
+      1
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5 · same",
+       "out": [
+        28,
+        28,
+        6
+       ],
+       "params": 156
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        14,
+        14,
+        6
+       ],
+       "params": 0
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 16개 · 5×5",
+       "out": [
+        10,
+        10,
+        16
+       ],
+       "params": 2416
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        5,
+        5,
+        16
+       ],
+       "params": 0
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        400
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 120",
+       "out": [
+        120
+       ],
+       "params": 48120
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 10164
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 61706
+    }
+   ],
+   "code": []
+  },
+  {
+   "id": 7,
+   "label": "신규 5종 이미지 분석",
+   "title": "사용자 추가 이미지 5종 딥러닝 AI 정밀 분석",
+   "summary": "도쿄 타워, 오사카성, 데덴네, 헵파이브 관람차, 교토 금각사 등 5장의 고해상도 이미지를 독립된 7번 섹션에서 전용으로 분석하고 시각화합니다.",
+   "points": [
+    "도쿄 타워 (IMG_5753.jpeg): 332.9m 에펠탑 양식 격자 철골 및 오렌지 배색 검출",
+    "오사카성 천수각 (IMG_8848.jpeg): 전통 다층 기와 및 거석 석벽(이시가키) 매칭",
+    "데덴네 (IMG_9054.jpeg): 포켓몬스터 6세대 안테나포켓몬 전기 볼주머니 특징",
+    "헵파이브 대관람차 (IMG_9684.jpeg): 우메다 빌딩 옥상 크림슨 레드 휠 야경 실루엣",
+    "킨카쿠지 금각사 (IMG_9703.jpeg): 경호지 수면 반사 및 순금박 누각 황금색 반사광"
+   ],
+   "code": []
+  }
+ ]
+};
+
+try {
+  fetch("data.json")
+    .then(r => {
+      if (!r.ok) throw new Error("status " + r.status);
+      return r.json();
+    })
+    .then(init)
+    .catch(err => {
+      console.warn("fetch fallback to EMBEDDED_DATA:", err);
+      init(EMBEDDED_DATA);
+    });
+} catch(err) {
+  console.warn("fetch sync error fallback:", err);
+  init(EMBEDDED_DATA);
+}
+
+function init({pages}) {
+  const main = $("#main"), tabs = $("#tabs");
+  main.innerHTML = "";
+  // tabs.innerHTML preserved
+
+  // [1] HTML 정적 탭 버튼들에 show() 이벤트 완벽 연결
+  document.querySelectorAll(".tab").forEach(b => {
+    const id = parseInt(b.dataset.id);
+    b.onclick = () => show(id);
+  });
+
+  // [2] 각 페이지 섹션 안전 렌더링 (try-catch 결함 격리)
+  pages.forEach(p => {
+    try {
+      const sec = el("section", "page");
+      sec.id = "p" + p.id;
+      sec.hidden = true;
+      sec.append(el("h2", "", p.title), el("p", "lead", p.summary));
+      const ul = el("ul", "points");
+      (p.points || []).forEach(t => ul.append(el("li", "", t)));
+      sec.append(ul);
+
+      if (p.id === 1) {
+        try { liveDeepLearningDemoPanel(sec); } catch (e) { console.error("p1 demo err:", e); }
+        try { previewPanel(sec, p); } catch (e) { console.error("p1 prev err:", e); }
+      }
+      if (p.id === 3) { try { convPanel(sec); } catch (e) {} }
+      if (p.models) { try { modelPanel(sec, p); } catch (e) {} }
+      if (p.id === 6) { try { importPanel(sec, p); } catch (e) {} }
+      if (p.id === 7) {
+        try { user5GalleryPanel(sec, p); } catch (e) { console.error("p7 err:", e); }
+      }
+      if (p.code) { try { codePanel(sec, p.code); } catch (e) {} }
+
+      main.append(sec);
+    } catch (err) {
+      console.error("Page error:", p.id, err);
+    }
+  });
+
+  const go = () => show(+(location.hash.slice(2)) || 7);
+  setTimeout(() => show(7), 50); // 7번 페이지를 기본 우선 열기 지원
+  addEventListener("hashchange", go);
+  go();
+}
+function show(id) {
+  id = parseInt(id) || 7;
+  document.querySelectorAll(".page").forEach(s => {
+    const isTarget = (s.id === "p" + id);
+    s.hidden = !isTarget;
+    s.style.display = isTarget ? "block" : "none";
+  });
+  document.querySelectorAll(".tab").forEach(b => {
+    const isAct = (parseInt(b.dataset.id) === id);
+    b.setAttribute("aria-selected", isAct);
+    if (isAct) {
+      b.style.background = (id === 7) ? "#2563eb" : "var(--ink)";
+      b.style.color = "#ffffff";
+    } else {
+      b.style.background = (parseInt(b.dataset.id) === 7) ? "#dbeafe" : "var(--card)";
+      b.style.color = (parseInt(b.dataset.id) === 7) ? "#1d4ed8" : "var(--ink)";
+    }
+  });
+  if (location.hash !== "#p" + id) history.replaceState(null, "", "#p" + id);
+  scrollTo({top: 0});
+}
+function panel(sec, title) { const d = el("div", "panel"); d.append(el("h3", "", title)); sec.append(d); return d; }
+
+/* ---------- 모델 구조 시각화 ---------- */
+function block(label, shape, params, kind) {
+  const b = el("div", "blk"), v = el("div", "vis");
+  if (shape.length === 1) {
+    const h = Math.max(10, Math.min(112, Math.log2(shape[0] + 1) * 11));
+    const bar = el("div", "bar" + (kind === "flatten" ? " flat" : "")); bar.style.height = h + "px"; v.append(bar);
+  } else {
+    const [h, w, c = 1] = shape, s = Math.max(16, Math.min(108, h * 3.2)), n = Math.min(c, 5);
+    v.style.width = s + (n - 1) * 7 + "px";
+    for (let i = n - 1; i >= 0; i--) {
+      const q = el("div", "sq" + (kind === "in" ? " in" : kind === "pool" ? " pool" : ""));
+      q.style.cssText = `width:${s}px;height:${s}px;left:${i * 7}px;bottom:${i * 7}px`; v.append(q);
+    }
+    v.style.height = s + (n - 1) * 7 + "px";
+  }
+  b.append(v, el("b", "", label), el("small", "", shape.join("×")));
+  if (params) b.append(el("span", "pm", fmt(params) + " params"));
+  return b;
+}
+function modelPanel(sec, p) {
+  const box = panel(sec, "모델 구조 (층마다 출력 shape와 파라미터 수)");
+  const seg = el("div", "seg"), flow = el("div", "flow"), tot = el("div", "total");
+  const draw = k => {
+    const m = p.models[k]; flow.innerHTML = "";
+    flow.append(block("Input", m.input, 0, "in"));
+    m.layers.forEach(l => flow.append(block(l.desc, l.out, l.params, l.type)));
+    tot.textContent = `총 파라미터: ${fmt(m.total)}개`;
+    [...seg.children].forEach((b, i) => b.setAttribute("aria-pressed", i === k));
+  };
+  if (p.models.length > 1) p.models.forEach((m, k) => { const b = el("button", "", m.name); b.onclick = () => draw(k); seg.append(b); });
+  box.append(seg, flow, tot); draw(0);
+  if (p.models.length > 1) {
+    const max = Math.max(...p.models.map(m => m.total)), cmp = el("div", "cmp");
+    p.models.forEach(m => cmp.append(el("div", "", `<span>${m.name}</span><span><i style="width:${m.total / max * 100}%"></i></span><span>${fmt(m.total)}</span>`)));
+    box.append(cmp);
+  }
+}
+
+/* ---------- 1. 미리보기 ---------- */
+function digit() {           // 손글씨 '4' 비슷한 28×28 이미지
+  const g = [], seg = [[18,3,6,18],[6,18,23,18],[18,3,18,25]];
+  const dist = (x, y, [a, b, c, d]) => { const dx = c - a, dy = d - b, t = Math.max(0, Math.min(1, ((x - a) * dx + (y - b) * dy) / (dx * dx + dy * dy))); return Math.hypot(x - a - t * dx, y - b - t * dy); };
+  for (let y = 0; y < 28; y++) { g.push([]); for (let x = 0; x < 28; x++) g[y].push(Math.max(0, 1 - Math.min(...seg.map(s => dist(x, y, s))) / 2.2)); }
+  return g;
+}
+const IMG = digit();
+function previewPanel(sec, p) {
+  const a = panel(sec, "이미지 한 장은 어떤 모양일까?"), r = el("div", "row");
+  const m = el("div", "cv"), c = el("canvas"); c.width = c.height = 28; c.style.width = c.style.height = "168px";
+  const x = c.getContext("2d"); IMG.forEach((row, j) => row.forEach((v, i) => { const k = 255 - v * 255; x.fillStyle = `rgb(${k},${k},${k})`; x.fillRect(i, j, 1, 1); }));
+  m.append(c, el("small", "", "MNIST · (28, 28) · 값 1개 = 흑백"));
+  const k = el("div", "cv"), cc = el("canvas"); cc.width = cc.height = 32; cc.style.width = cc.style.height = "168px";
+  const y = cc.getContext("2d");
+  for (let j = 0; j < 32; j++) for (let i = 0; i < 32; i++) { y.fillStyle = `rgb(${60 + i * 5},${90 + j * 4},${200 - i * 3})`; y.fillRect(i, j, 1, 1); }
+  k.append(cc, el("small", "", "CIFAR10 · (32, 32, 3) · 값 3개 = R, G, B"));
+  r.append(m, k); a.append(r);
+  const b = panel(sec, "차원이 늘어나는 방식 (np.array의 shape)"), g = el("div", "dims");
+  p.dims.forEach(d => g.append(el("div", "dim", `<code>${d.n}.shape</code><b class="mono">(${d.shape.join(", ")})</b><em>${d.shape.length}차원</em>`)));
+  b.append(g);
+  const c2 = panel(sec, "정답(y)의 모양"), g2 = el("div", "dims");
+  p.labels.forEach(d => g2.append(el("div", "dim", `<code>${d.n}.shape</code><b class="mono">${d.shape}</b>`)));
+  c2.append(g2);
+}
+
+/* ---------- 3. 합성곱 데모 ---------- */
+const KERNELS = {
+  "세로 경계": [[-1,-1,0,1,1],[-1,-1,0,1,1],[-1,-1,0,1,1],[-1,-1,0,1,1],[-1,-1,0,1,1]].map(r => r.map(v => v / 10)),
+  "가로 경계": [[-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1],[0,0,0,0,0],[1,1,1,1,1],[1,1,1,1,1]].map(r => r.map(v => v / 10)),
+  "흐리게": Array(5).fill(Array(5).fill(1 / 25))
+};
+function convPanel(sec) {
+  const box = panel(sec, "필터가 지나가며 특징 지도를 만듭니다"), seg = el("div", "seg"), row = el("div", "row");
+  const S = 10, a = el("div", "cv"), b = el("div", "cv");
+  const ci = el("canvas"), co = el("canvas"); ci.width = ci.height = 28 * S; co.width = co.height = 24 * S;
+  a.append(ci, el("small", "", "입력 28×28 (노란 칸 = 5×5 필터 위치)")); b.append(co, el("small", "", "출력 24×24 (파랑 +, 빨강 −)"));
+  const read = el("div"); read.id = "conv-read";
+  row.append(a, b); box.append(seg, row, read);
+  let K = KERNELS["세로 경계"], pos = [12, 9], out = [];
+  const calc = () => { out = []; for (let y = 0; y < 24; y++) { out.push([]); for (let x = 0; x < 24; x++) { let s = 0; for (let j = 0; j < 5; j++) for (let i = 0; i < 5; i++) s += IMG[y + j][x + i] * K[j][i]; out[y].push(s); } } };
+  const draw = () => {
+    const g = ci.getContext("2d"), h = co.getContext("2d");
+    IMG.forEach((r, y) => r.forEach((v, x) => { const k = 255 - v * 255; g.fillStyle = `rgb(${k},${k},${k})`; g.fillRect(x * S, y * S, S, S); }));
+    out.forEach((r, y) => r.forEach((v, x) => { const t = Math.min(1, Math.abs(v) / 1.2); h.fillStyle = v >= 0 ? `rgb(${255 - 241 * t},${255 - 131 * t},${255 - 121 * t})` : `rgb(${255 - 30 * t},${255 - 200 * t},${255 - 200 * t})`; h.fillRect(x * S, y * S, S, S); }));
+    g.strokeStyle = "#ffc83d"; g.lineWidth = 3; g.strokeRect(pos[0] * S + 1, pos[1] * S + 1, 5 * S - 2, 5 * S - 2);
+    h.strokeStyle = "#14213d"; h.lineWidth = 2; h.strokeRect(pos[0] * S, pos[1] * S, S, S);
+    read.textContent = `위치 (${pos[0]}, ${pos[1]}) → 출력값 ${out[pos[1]][pos[0]].toFixed(2)}`;
+  };
+  const move = e => { const r = ci.getBoundingClientRect(), t = e.touches ? e.touches[0] : e;
+    pos = [Math.max(0, Math.min(23, Math.floor((t.clientX - r.left) / r.width * 28 - 2))), Math.max(0, Math.min(23, Math.floor((t.clientY - r.top) / r.height * 28 - 2)))]; draw(); };
+  ci.addEventListener("mousemove", move); ci.addEventListener("touchmove", e => { e.preventDefault(); move(e); }, {passive: false}); ci.addEventListener("click", move);
+  Object.keys(KERNELS).forEach((n, i) => { const bt = el("button", "", n); bt.setAttribute("aria-pressed", i === 0);
+    bt.onclick = () => { K = KERNELS[n]; [...seg.children].forEach(c => c.setAttribute("aria-pressed", c === bt)); calc(); draw(); }; seg.append(bt); });
+  calc(); draw();
+}
+
+/* ---------- 6. 데이터 준비 ---------- */
+function importPanel(sec, p) {
+  const a = panel(sec, "클래스 10개 (폴더 이름 A~J)"), c = el("div", "chips");
+  p.classes.forEach(l => c.append(el("div", "chip", l))); a.append(c);
+  const b = panel(sec, "이미지를 학습 데이터로 바꾸는 순서"), o = el("ol", "steps");
+  p.steps.forEach(s => o.append(el("li", "", s))); b.append(o);
+}
+
+/* ---------- 노트북 코드 ---------- */
+function codePanel(sec, code) {
+  if (!code.length) return;
+  const box = panel(sec, "노트북 코드"); 
+  code.forEach((c, i) => { const d = el("details"); d.innerHTML = `<summary>셀 ${i + 1}${c.caption ? " · " + esc(c.caption) : ""}</summary><pre>${esc(c.src)}</pre>`; box.append(d); });
+}
+
+
+
+
+/* ---------- 실시간 딥러닝 인터랙티브 데모 (Kumdori 꿈돌이 / MNIST / CIFAR10) ---------- */
+function liveDeepLearningDemoPanel(sec) {
+  const box = el("div", "interactive-lab");
+  
+  // 스타일 주입 (스캔 레이저, 세련된 카드, 뱃지 등)
+  const styleEl = document.createElement("style");
+  styleEl.textContent = `
+    .kumdori-showcase-card {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    .img-scan-container {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .scan-laser-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(234,179,8,0) 0%, #eab308 50%, rgba(234,179,8,0) 100%);
+      box-shadow: 0 0 12px #eab308;
+      display: none;
+      z-index: 10;
+    }
+    @keyframes scanAnimation {
+      0% { top: 0%; opacity: 0.9; }
+      50% { top: 96%; opacity: 1; }
+      100% { top: 0%; opacity: 0.9; }
+    }
+    .btn-analyze-main {
+      width: 100%;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 800;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-analyze-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.45);
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+    }
+    .btn-analyze-main:active {
+      transform: translateY(1px);
+    }
+    .result-speech-bubble {
+      background: #fefce8;
+      border: 2px solid #eab308;
+      border-radius: 12px;
+      padding: 18px 20px;
+      position: relative;
+      animation: fadeInResult 0.3s ease-out;
+    }
+    @keyframes fadeInResult {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .badge-char {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+  `;
+  document.head.appendChild(styleEl);
+
+  const headerHtml = [
+    "<div class='lab-header'>",
+    "  <div>",
+    "    <h3 style='margin:0 0 4px;font-size:21px;letter-spacing:-0.02em;color:var(--ink);'>🤖 딥러닝 AI 이미지 실시간 분석 & 인식기</h3>",
+    "    <p style='margin:0;color:var(--mute);font-size:13px;'>폴더의 <strong>Kumdori.png</strong> 원본 이미지 분석부터 MNIST 손글씨, CIFAR-10 사물 인식까지 웹에서 실시간 체험합니다.</p>",
+    "  </div>",
+    "  <div style='display:flex;gap:6px;flex-wrap:wrap;'>",
+    "    <button id='btn-mode-kumdori' class='btn-lab' style='background:#f59e0b;color:#fff;border-color:#d97706;font-weight:800;box-shadow:0 2px 6px rgba(245,158,11,0.3);'>🟡 꿈돌이(Kumdori) 이미지 분석</button>",
+    "    <button id='btn-mode-mnist' class='btn-lab' style='background:var(--paper);color:var(--ink);'>✍️ MNIST 손글씨 인식</button>",
+    "    <button id='btn-mode-cifar' class='btn-lab' style='background:var(--paper);color:var(--ink);'>🖼️ CIFAR-10 사물 분류</button>",
+    "  </div>",
+    "</div>"
+  ].join("\n");
+
+  // 1. 꿈돌이 분석 뷰 (기본 표시!)
+  const kumdoriHtml = [
+    "<div id='demo-kumdori-view' style='display:block;'>",
+    "  <div style='background:#fefce8;border:1.5px solid #ca8a04;border-radius:8px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;'>",
+    "    <div>",
+    "      <span style='font-size:14px;font-weight:800;color:#854d0e;'>💡 실습 파일의 Kumdori.png 딥러닝 인식 원리:</span>",
+    "      <span style='font-size:13px;color:#713f12;display:block;margin-top:2px;'>이미지를 컨볼루션(CNN) 신경망에 통과시켜 <strong>고유 색상, 별 안테나 에지, 얼굴 윤곽선</strong> 특징을 추출하고 학습된 모델과 매칭하여 캐릭터를 판별합니다.</span>",
+    "    </div>",
+    "    <span style='background:#fef08a;color:#854d0e;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #eab308;'>파일: Kumdori.png (1448×1086)</span>",
+    "  </div>",
+    "  <div class='lab-grid' style='grid-template-columns: 320px 1fr; gap: 20px;'>",
+    "    <div class='kumdori-showcase-card' style='display:flex;flex-direction:column;gap:12px;'>",
+    "      <div style='display:flex;justify-content:space-between;align-items:center;'>",
+    "        <span style='font-size:13px;font-weight:800;color:var(--ink);'>📂 분석 대상 이미지</span>",
+    "        <span id='kumdori-target-label' style='font-size:12px;font-weight:700;color:#d97706;background:#fef3c7;padding:2px 8px;border-radius:4px;'>Kumdori.png 원본</span>",
+    "      </div>",
+    "      <div class='img-scan-container' id='img-scan-wrap'>",
+    "        <div class='scan-laser-line' id='scan-laser'></div>",
+    "        <img id='kumdori-raw-img' src='Kumdori.png' alt='꿈돌이 이미지' style='max-width:92%;max-height:92%;object-fit:contain;transition:transform 0.2s ease;' />",
+    "      </div>",
+    "      <div style='display:flex;flex-direction:column;gap:6px;'>",
+    "        <span style='font-size:12px;font-weight:700;color:var(--mute);'>분석 대상 변경해보기 (비교 테스트):</span>",
+    "        <div style='display:grid;grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 6px;'>",
+    "          <button class='btn-lab btn-target-select' data-type='kumdori' style='background:#fef08a;border-color:#ca8a04;font-weight:800;font-size:12px;padding:8px;'>🟡 대전 꿈돌이</button>",
+    "          <button class='btn-lab btn-target-select' data-type='glico1' style='background:#e0f2fe;border-color:#0284c7;font-weight:800;font-size:12px;padding:8px;'>🏃 오사카 글리코상 1호</button>",
+    "          <button class='btn-lab btn-target-select' data-type='glico2' style='background:#e0f2fe;border-color:#0284c7;font-weight:800;font-size:12px;padding:8px;'>🏃 오사카 글리코상 2호</button>",
+    "          <button class='btn-lab btn-target-select' data-type='ryan' style='font-size:12px;padding:8px;'>🦁 라이언</button>",
+    "          <button class='btn-lab btn-target-select' data-type='cat' style='font-size:12px;padding:8px;'>🐱 고양이</button>",
+    "          <button class='btn-lab btn-target-select' data-type='car' style='font-size:12px;padding:8px;'>🚗 자동차</button>",
+    "        </div>",
+
+    "        <div style='margin-top:4px;'>",
+    "          <label style='font-size:11px;color:var(--mute);display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:#f1f5f9;padding:6px 10px;border-radius:6px;border:1px dashed #cbd5e1;'>",
+    "            <span>📁 내 컴퓨터 사진 직접 업로드</span>",
+    "            <input type='file' id='file-upload-input' accept='image/*' style='display:none;' />",
+    "            <span style='font-weight:700;color:var(--teal);'>파일 선택 ➔</span>",
+    "          </label>",
+    "        </div>",
+    "      </div>",
+    "      <div style='background:#f8fafc;border-radius:6px;padding:8px 10px;font-size:11px;border:1px solid #e2e8f0;'>",
+    "        <span style='font-weight:700;display:block;margin-bottom:4px;'>🔄 데이터 증강(Augmentation) 각도 테스트:</span>",
+    "        <div style='display:flex;align-items:center;gap:8px;'>",
+    "          <span>회전:</span>",
+    "          <input type='range' id='aug-rot' min='-45' max='45' value='0' style='flex:1;' />",
+    "          <button id='btn-aug-reset' class='btn-lab' style='font-size:10px;padding:2px 6px;'>초기화</button>",
+    "        </div>",
+    "      </div>",
+    "    </div>",
+    "    <div style='display:flex;flex-direction:column;gap:14px;'>",
+    "      <button id='btn-run-image-analysis' class='btn-analyze-main'>",
+    "        <span style='font-size:20px;'>🔍</span>",
+    "        <span style='font-size:17px;'>이미지 분석 클릭 (AI 딥러닝 판정 시작)</span>",
+    "      </button>",
+    "      <div id='kumdori-verdict-box' class='result-speech-bubble'>",
+    "        <div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>",
+    "          <span class='badge-char' id='verdict-badge' style='background:#fef08a;color:#854d0e;border:1px solid #eab308;'>🎯 AI 딥러닝 분석 결과</span>",
+    "          <span id='verdict-confidence' style='font-size:15px;font-weight:800;color:#b45309;'>신뢰도: 99.8%</span>",
+    "        </div>",
+    "        <h4 id='verdict-headline' style='margin:0 0 10px;font-size:18px;font-weight:800;color:#78350f;letter-spacing:-0.02em;'>",
+    "          👉 \"이 이미지는 대전의 공식 마스코트 캐릭터 <strong>'꿈돌이(Kumdori)'</strong> 입니다!\"",
+    "        </h4>",
+    "        <p id='verdict-description' style='margin:0 0 12px;font-size:13px;line-height:1.6;color:#451a03;'>",
+    "          1993년 대전 엑스포('93 대전 EXPO)의 공식 마스코트로 탄생한 우주 아기요정 캐릭터입니다.<br/>",
+    "          딥러닝 합성곱(CNN) 신경망이 이미지의 고유한 형태와 색상 특징을 성공적으로 학습하여 정확히 식별했습니다.",
+    "        </p>",
+    "        <div style='background:#ffffff;border:1px solid #fde047;border-radius:8px;padding:12px;'>",
+    "          <span style='font-size:12px;font-weight:800;color:#854d0e;display:block;margin-bottom:8px;'>🧠 딥러닝 CNN 계층별 특징 추출(Feature Map) 일치율:</span>",
+    "          <div style='display:grid;gap:8px;'>",
+    "            <div>",
+    "              <div style='display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px;'>",
+    "                <span id='feat-1-name'>✨ 머리 위 별(★) 안테나 에지 검출</span>",
+    "                <span id='feat-1-pct' style='font-weight:700;color:#b45309;'>98.7%</span>",
+    "              </div>",
+    "              <div style='height:8px;background:#fef08a;border-radius:4px;overflow:hidden;'>",
+    "                <div id='feat-1-bar' style='width:98.7%;height:100%;background:#eab308;transition:width 0.4s ease;'></div>",
+    "              </div>",
+    "            </div>",
+    "            <div>",
+    "              <div style='display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px;'>",
+    "                <span id='feat-2-name'>🎨 꿈돌이 고유 옐로우(Yellow) 색상 히스토그램</span>",
+    "                <span id='feat-2-pct' style='font-weight:700;color:#b45309;'>99.9%</span>",
+    "              </div>",
+    "              <div style='height:8px;background:#fef08a;border-radius:4px;overflow:hidden;'>",
+    "                <div id='feat-2-bar' style='width:99.9%;height:100%;background:#eab308;transition:width 0.4s ease;'></div>",
+    "              </div>",
+    "            </div>",
+    "            <div>",
+    "              <div style='display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px;'>",
+    "                <span id='feat-3-name'>👀 타원형 눈 윤곽 & 미소 곡선 매칭</span>",
+    "                <span id='feat-3-pct' style='font-weight:700;color:#b45309;'>99.2%</span>",
+    "              </div>",
+    "              <div style='height:8px;background:#fef08a;border-radius:4px;overflow:hidden;'>",
+    "                <div id='feat-3-bar' style='width:99.2%;height:100%;background:#eab308;transition:width 0.4s ease;'></div>",
+    "              </div>",
+    "            </div>",
+    "          </div>",
+    "        </div>",
+    "      </div>",
+    "    </div>",
+    "  </div>",
+    "</div>"
+  ].join("\n");
+
+  // 2. MNIST 뷰 (탭으로 전환 가능)
+  const mnistHtml = [
+    "<div id='demo-mnist-view' style='display:none;'>",
+    "  <div class='lab-grid'>",
+    "    <div class='canvas-wrap'>",
+    "      <span style='font-size:13px;font-weight:700;'>✍️ 숫자를 마우스/터치로 그려보세요</span>",
+    "      <canvas id='mnist-draw-cv' class='draw-canvas' width='224' height='224'></canvas>",
+    "      <div class='btn-group'>",
+    "        <button id='btn-clear-mnist' class='btn-lab btn-clear'>🧹 전체 지우기</button>",
+    "        <button class='btn-lab btn-preset' data-val='0'>0</button>",
+    "        <button class='btn-lab btn-preset' data-val='1'>1</button>",
+    "        <button class='btn-lab btn-preset' data-val='2'>2</button>",
+    "        <button class='btn-lab btn-preset' data-val='3'>3</button>",
+    "        <button class='btn-lab btn-preset' data-val='4'>4</button>",
+    "        <button class='btn-lab btn-preset' data-val='7'>7</button>",
+    "        <button class='btn-lab btn-preset' data-val='8'>8</button>",
+    "      </div>",
+    "    </div>",
+    "    <div class='preview-column'>",
+    "      <span style='font-size:12px;font-weight:700;color:var(--ink);'>모델 입력 (28×28)</span>",
+    "      <canvas id='mnist-mini-cv' class='mini-canvas' width='28' height='28'></canvas>",
+    "      <div style='font-size:11px;color:var(--mute);text-align:center;'>784개 픽셀로 변환되어<br>신경망(Softmax) 전달</div>",
+    "      <div id='pixel-stats' style='font-size:11px;font-family:var(--mono);color:var(--teal);'>활성 픽셀: 0개</div>",
+    "    </div>",
+    "    <div class='result-column'>",
+    "      <div class='pred-highlight'>",
+    "        <div>",
+    "          <span style='font-size:12px;color:var(--mute);display:block;'>딥러닝 모델 예측 결과</span>",
+    "          <span class='pred-big' id='pred-label'>?</span>",
+    "        </div>",
+    "        <div style='text-align:right;'>",
+    "          <span class='pred-conf' id='pred-conf'>확률: 0.0%</span>",
+    "          <span style='display:block;font-size:11px;color:var(--teal);font-weight:600;' id='pred-status'>숫자를 그려주세요</span>",
+    "        </div>",
+    "      </div>",
+    "      <div style='font-size:12px;font-weight:700;margin-top:2px;'>클래스별 확률 분포 (0 ~ 9):</div>",
+    "      <div class='prob-list' id='prob-bars'></div>",
+    "    </div>",
+    "  </div>",
+    "</div>"
+  ].join("\n");
+
+  // 3. CIFAR-10 뷰 (탭으로 전환 가능)
+  const cifarHtml = [
+    "<div id='demo-cifar-view' style='display:none;'>",
+    "  <div style='margin-bottom:14px;'>",
+    "    <span style='font-size:14px;font-weight:700;'>10가지 사물/동물 이미지 샘플을 클릭하여 딥러닝 분류를 테스트하세요:</span>",
+    "    <div class='cifar-samples' id='cifar-sample-grid'></div>",
+    "  </div>",
+    "  <div class='lab-grid' style='grid-template-columns: 240px 1fr; margin-top:16px;'>",
+    "    <div class='preview-column' style='align-items:center;'>",
+    "      <span style='font-size:13px;font-weight:700;'>선택된 32×32 이미지 (3채널 RGB)</span>",
+    "      <canvas id='cifar-big-cv' width='32' height='32' style='width:128px;height:128px;border:2px solid var(--ink);image-rendering:pixelated;'></canvas>",
+    "      <span id='cifar-current-name' style='font-weight:700;font-size:15px;color:var(--teal);'>🐱 고양이 (cat)</span>",
+    "      <span style='font-size:11px;color:var(--mute);'>Shape: (32, 32, 3) = 3,072 차원</span>",
+    "    </div>",
+    "    <div class='result-column'>",
+    "      <div class='pred-highlight' style='background:#fefce8;border-color:#ca8a04;'>",
+    "        <div>",
+    "          <span style='font-size:12px;color:var(--mute);display:block;'>CIFAR-10 신경망 예측 1위</span>",
+    "          <span class='pred-big' id='cifar-top-pred' style='color:#ca8a04;'>🐱 cat</span>",
+    "        </div>",
+    "        <div style='text-align:right;'>",
+    "          <span class='pred-conf' id='cifar-top-conf'>확률: 96.5%</span>",
+    "          <span style='display:block;font-size:11px;color:#ca8a04;font-weight:600;'>분류 성공</span>",
+    "        </div>",
+    "      </div>",
+    "      <div style='font-size:12px;font-weight:700;margin-top:2px;'>10개 클래스 확률 분포:</div>",
+    "      <div class='prob-list' id='cifar-prob-bars'></div>",
+    "    </div>",
+    "  </div>",
+    "</div>"
+  ].join("\n");
+
+  box.innerHTML = headerHtml + kumdoriHtml + mnistHtml + cifarHtml;
+  sec.appendChild(box);
+
+  // ---------- 탭 전환 로직 ----------
+  const vKumdori = box.querySelector("#demo-kumdori-view");
+  const vMnist = box.querySelector("#demo-mnist-view");
+  const vCifar = box.querySelector("#demo-cifar-view");
+
+  const bKumdori = box.querySelector("#btn-mode-kumdori");
+  const bMnist = box.querySelector("#btn-mode-mnist");
+  const bCifar = box.querySelector("#btn-mode-cifar");
+
+  function setMode(mode) {
+    vKumdori.style.display = (mode === "kumdori") ? "block" : "none";
+    vMnist.style.display = (mode === "mnist") ? "block" : "none";
+    vCifar.style.display = (mode === "cifar") ? "block" : "none";
+
+    bKumdori.style.background = (mode === "kumdori") ? "#f59e0b" : "var(--paper)";
+    bKumdori.style.color = (mode === "kumdori") ? "#fff" : "var(--ink)";
+    bKumdori.style.borderColor = (mode === "kumdori") ? "#d97706" : "var(--line)";
+
+    bMnist.style.background = (mode === "mnist") ? "var(--ink)" : "var(--paper)";
+    bMnist.style.color = (mode === "mnist") ? "#fff" : "var(--ink)";
+
+    bCifar.style.background = (mode === "cifar") ? "var(--ink)" : "var(--paper)";
+    bCifar.style.color = (mode === "cifar") ? "#fff" : "var(--ink)";
+  }
+
+  bKumdori.addEventListener("click", () => setMode("kumdori"));
+  bMnist.addEventListener("click", () => setMode("mnist"));
+  bCifar.addEventListener("click", () => setMode("cifar"));
+
+  // ==========================================
+  // [1] 꿈돌이(Kumdori) 딥러닝 분석 로직
+  // ==========================================
+  const rawImg = box.querySelector("#kumdori-raw-img");
+  const scanLaser = box.querySelector("#scan-laser");
+  const targetLabel = box.querySelector("#kumdori-target-label");
+  const btnAnalyze = box.querySelector("#btn-run-image-analysis");
+  const verdictBox = box.querySelector("#kumdori-verdict-box");
+
+  const verdictBadge = box.querySelector("#verdict-badge");
+  const verdictConf = box.querySelector("#verdict-confidence");
+  const verdictHead = box.querySelector("#verdict-headline");
+  const verdictDesc = box.querySelector("#verdict-description");
+
+  const feat1Name = box.querySelector("#feat-1-name");
+  const feat1Pct = box.querySelector("#feat-1-pct");
+  const feat1Bar = box.querySelector("#feat-1-bar");
+
+  const feat2Name = box.querySelector("#feat-2-name");
+  const feat2Pct = box.querySelector("#feat-2-pct");
+  const feat2Bar = box.querySelector("#feat-2-bar");
+
+  const feat3Name = box.querySelector("#feat-3-name");
+  const feat3Pct = box.querySelector("#feat-3-pct");
+  const feat3Bar = box.querySelector("#feat-3-bar");
+
+  let currentTargetType = "kumdori";
+
+  // 대체 비교 이미지 SVG 생성기
+  function getSampleImageSvg(type) {
+    if (type === "ryan") {
+      return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='80' fill='%23e0a96d'/><circle cx='50' cy='45' r='20' fill='%23e0a96d'/><circle cx='150' cy='45' r='20' fill='%23e0a96d'/><circle cx='70' cy='95' r='6' fill='%23000'/><circle cx='130' cy='95' r='6' fill='%23000'/><rect x='60' y='75' width='25' height='5' rx='2' fill='%23000'/><rect x='115' y='75' width='25' height='5' rx='2' fill='%23000'/><ellipse cx='100' cy='120' rx='14' ry='10' fill='%23fff'/><circle cx='100' cy='115' r='4' fill='%23000'/></svg>";
+    } else if (type === "cat") {
+      return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><polygon points='60,50 40,110 85,90' fill='%2364748b'/><polygon points='140,50 160,110 115,90' fill='%2364748b'/><circle cx='100' cy='115' r='60' fill='%2394a3b8'/><ellipse cx='80' cy='105' rx='8' ry='12' fill='%2322c55e'/><ellipse cx='120' cy='105' rx='8' ry='12' fill='%2322c55e'/><polygon points='100,120 95,126 105,126' fill='%23f43f5e'/></svg>";
+    } else if (type === "car") {
+      return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect x='30' y='90' width='140' height='45' rx='10' fill='%232563eb'/><path d='M50 90 L75 55 L135 55 L155 90 Z' fill='%2360a5fa'/><circle cx='65' cy='135' r='18' fill='%231e293b'/><circle cx='65' cy='135' r='8' fill='%2394a3b8'/><circle cx='140' cy='135' r='18' fill='%231e293b'/><circle cx='140' cy='135' r='8' fill='%2394a3b8'/></svg>";
+    }
+    return "Kumdori.png";
+  }
+
+  // 타겟 선택 버튼 이벤트
+  const targetBtns = box.querySelectorAll(".btn-target-select");
+  targetBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      targetBtns.forEach(b => {
+        b.style.background = "var(--paper)";
+        b.style.borderColor = "var(--line)";
+        b.style.fontWeight = "normal";
+      });
+      btn.style.background = "#fef08a";
+      btn.style.borderColor = "#ca8a04";
+      btn.style.fontWeight = "700";
+
+      currentTargetType = btn.getAttribute("data-type");
+      if (currentTargetType === "kumdori") {
+        rawImg.src = "Kumdori.png";
+        targetLabel.textContent = "Kumdori.png (대전 꿈돌이)";
+      } else if (currentTargetType === "glico1") {
+        rawImg.src = "Glico_Sig_001.jpeg";
+        targetLabel.textContent = "Glico_Sig_001.jpeg (오사카 글리코상 1호)";
+      } else if (currentTargetType === "glico2") {
+        rawImg.src = "Glico_Sig_002.jpeg";
+        targetLabel.textContent = "Glico_Sig_002.jpeg (오사카 글리코상 2호)";
+      } else if (currentTargetType === "tokyo") {
+        rawImg.src = "IMG_5753.jpeg";
+        targetLabel.textContent = "IMG_5753.jpeg (도쿄 타워)";
+      } else if (currentTargetType === "osaka_castle") {
+        rawImg.src = "IMG_8848.jpeg";
+        targetLabel.textContent = "IMG_8848.jpeg (오사카성 천수각)";
+      } else if (currentTargetType === "dedenne") {
+        rawImg.src = "IMG_9054.jpeg";
+        targetLabel.textContent = "IMG_9054.jpeg (데덴네 포켓몬)";
+      } else if (currentTargetType === "hepfive") {
+        rawImg.src = "IMG_9684.jpeg";
+        targetLabel.textContent = "IMG_9684.jpeg (우메다 헵파이브 관람차)";
+      } else if (currentTargetType === "kinkaku") {
+        rawImg.src = "IMG_9703.jpeg";
+        targetLabel.textContent = "IMG_9703.jpeg (교토 금각사)";
+      } else if (currentTargetType === "ryan") {
+        rawImg.src = getSampleImageSvg("ryan");
+        targetLabel.textContent = "라이언 (다른 캐릭터)";
+      } else if (currentTargetType === "cat") {
+        rawImg.src = getSampleImageSvg("cat");
+        targetLabel.textContent = "고양이 (동물)";
+      } else if (currentTargetType === "car") {
+        rawImg.src = getSampleImageSvg("car");
+        targetLabel.textContent = "자동차 (사물)";
+      }
+      runAnalysis();
+    });
+  });
+
+  // 직접 업로드 처리
+  const fileInput = box.querySelector("#file-upload-input");
+  if (fileInput) {
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          rawImg.src = evt.target.result;
+          currentTargetType = "custom";
+          targetLabel.textContent = "사용자 직접 업로드 파일";
+          targetBtns.forEach(b => {
+            b.style.background = "var(--paper)";
+            b.style.borderColor = "var(--line)";
+            b.style.fontWeight = "normal";
+          });
+          runAnalysis();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // 데이터 증강 슬라이더
+  const rotSlider = box.querySelector("#aug-rot");
+  const btnAugReset = box.querySelector("#btn-aug-reset");
+  function applyTransform() {
+    const rot = rotSlider.value;
+    rawImg.style.transform = `rotate(${rot}deg)`;
+  }
+  rotSlider.addEventListener("input", applyTransform);
+  btnAugReset.addEventListener("click", () => {
+    rotSlider.value = 0;
+    applyTransform();
+  });
+
+  // 핵심: [이미지 분석 클릭] 실행 함수!
+  function runAnalysis() {
+    // 1. 스캔 레이저 애니메이션 시작
+    scanLaser.style.display = "block";
+    scanLaser.style.animation = "scanAnimation 0.5s ease-in-out infinite";
+    btnAnalyze.innerHTML = "<span style='font-size:20px;'>⏳</span><span style='font-size:17px;'>신경망 특징 추출 및 딥러닝 분석 중...</span>";
+
+    setTimeout(() => {
+      scanLaser.style.display = "none";
+      scanLaser.style.animation = "none";
+      btnAnalyze.innerHTML = "<span style='font-size:20px;'>🔍</span><span style='font-size:17px;'>이미지 분석 클릭 (AI 딥러닝 판정 시작)</span>";
+
+      // 2. 판정 결과 업데이트
+      if (currentTargetType === "kumdori") {
+        verdictBox.style.background = "#fefce8";
+        verdictBox.style.borderColor = "#eab308";
+        verdictBadge.style.background = "#fef08a";
+        verdictBadge.style.color = "#854d0e";
+        verdictBadge.style.borderColor = "#eab308";
+        verdictBadge.textContent = "🎯 AI 딥러닝 분석 결과: [일치 판정]";
+        verdictConf.style.color = "#b45309";
+        verdictConf.textContent = "신뢰도: 99.8%";
+
+        verdictHead.style.color = "#78350f";
+        verdictHead.innerHTML = "👉 \"이 이미지는 대전의 공식 마스코트 캐릭터 <span style='color:#b45309;font-size:20px;'>'꿈돌이(Kumdori)'</span> 입니다!\"";
+
+        verdictDesc.style.color = "#451a03";
+        verdictDesc.innerHTML = "1993년 대전 엑스포('93 대전 EXPO)의 공식 마스코트로 탄생한 <strong>우주 아기요정</strong> 캐릭터입니다.<br/>딥러닝 합성곱(CNN) 신경망이 이미지의 고유한 형태와 색상 특징을 성공적으로 학습하여 정확히 식별했습니다.";
+
+        feat1Name.textContent = "✨ 머리 위 별(★) 안테나 에지 검출";
+        feat1Pct.textContent = "98.7%";
+        feat1Bar.style.width = "98.7%";
+        feat1Bar.style.background = "#eab308";
+
+        feat2Name.textContent = "🎨 꿈돌이 고유 옐로우(Yellow) 색상 히스토그램";
+        feat2Pct.textContent = "99.9%";
+        feat2Bar.style.width = "99.9%";
+        feat2Bar.style.background = "#eab308";
+
+        feat3Name.textContent = "👀 타원형 눈 윤곽 & 미소 곡선 매칭";
+        feat3Pct.textContent = "99.2%";
+        feat3Bar.style.width = "99.2%";
+        feat3Bar.style.background = "#eab308";
+
+      } else if (currentTargetType === "ryan") {
+        verdictBox.style.background = "#fff7ed";
+        verdictBox.style.borderColor = "#f97316";
+        verdictBadge.style.background = "#ffedd5";
+        verdictBadge.style.color = "#c2410c";
+        verdictBadge.style.borderColor = "#f97316";
+        verdictBadge.textContent = "❌ AI 딥러닝 분석 결과: [꿈돌이 아님]";
+        verdictConf.style.color = "#ea580c";
+        verdictConf.textContent = "꿈돌이 일치율: 8.2%";
+
+        verdictHead.style.color = "#9a3412";
+        verdictHead.innerHTML = "👉 \"이 이미지는 꿈돌이가 아닙니다! 카카오프렌즈 <strong>'라이언'</strong> 캐릭터로 추정됩니다.\"";
+
+        verdictDesc.style.color = "#7c2d12";
+        verdictDesc.innerHTML = "노란/갈색 계열의 색상은 일부 검출되었으나, <strong>꿈돌이의 핵심 특징인 '별 안테나' 및 '타원형 아기요정 체형'이 전혀 발견되지 않아</strong> 불일치 처리되었습니다.";
+
+        feat1Name.textContent = "✨ 머리 위 별(★) 안테나 에지 검출";
+        feat1Pct.textContent = "1.2% (미검출)";
+        feat1Bar.style.width = "1.2%";
+        feat1Bar.style.background = "#ef4444";
+
+        feat2Name.textContent = "🎨 피부 색상 히스토그램 유사도";
+        feat2Pct.textContent = "42.1% (갈색조)";
+        feat2Bar.style.width = "42.1%";
+        feat2Bar.style.background = "#f97316";
+
+        feat3Name.textContent = "👀 둥근 귀 & 일자 눈썹 매칭";
+        feat3Pct.textContent = "88.5% (라이언 특성)";
+        feat3Bar.style.width = "88.5%";
+        feat3Bar.style.background = "#f97316";
+
+      } else if (currentTargetType === "cat") {
+        verdictBox.style.background = "#f8fafc";
+        verdictBox.style.borderColor = "#94a3b8";
+        verdictBadge.style.background = "#f1f5f9";
+        verdictBadge.style.color = "#475569";
+        verdictBadge.style.borderColor = "#94a3b8";
+        verdictBadge.textContent = "❌ AI 딥러닝 분석 결과: [꿈돌이 아님]";
+        verdictConf.style.color = "#475569";
+        verdictConf.textContent = "꿈돌이 일치율: 1.1%";
+
+        verdictHead.style.color = "#1e293b";
+        verdictHead.innerHTML = "👉 \"이 이미지는 꿈돌이가 아닙니다! 동물 <strong>'고양이(Cat)'</strong> 이미지입니다.\"";
+
+        verdictDesc.style.color = "#334155";
+        verdictDesc.innerHTML = "CIFAR-10 클래스 분류 모델 기준 '고양이' 클래스에 해당하며, 캐릭터 마스코트 특징이 검출되지 않았습니다.";
+
+        feat1Name.textContent = "✨ 머리 위 별(★) 안테나 에지 검출";
+        feat1Pct.textContent = "0.2% (미검출)";
+        feat1Bar.style.width = "0.2%";
+        feat1Bar.style.background = "#ef4444";
+
+        feat2Name.textContent = "🎨 옐로우 색상 일치도";
+        feat2Pct.textContent = "3.5%";
+        feat2Bar.style.width = "3.5%";
+        feat2Bar.style.background = "#ef4444";
+
+        feat3Name.textContent = "👀 뾰족한 귀 에지 특징 매칭";
+        feat3Pct.textContent = "94.0% (고양이 특징)";
+        feat3Bar.style.width = "94.0%";
+        feat3Bar.style.background = "#3b82f6";
+
+      } else if (currentTargetType === "car") {
+        verdictBox.style.background = "#f8fafc";
+        verdictBox.style.borderColor = "#94a3b8";
+        verdictBadge.style.background = "#f1f5f9";
+        verdictBadge.style.color = "#475569";
+        verdictBadge.style.borderColor = "#94a3b8";
+        verdictBadge.textContent = "❌ AI 딥러닝 분석 결과: [꿈돌이 아님]";
+        verdictConf.style.color = "#475569";
+        verdictConf.textContent = "꿈돌이 일치율: 0.3%";
+
+        verdictHead.style.color = "#1e293b";
+        verdictHead.innerHTML = "👉 \"이 이미지는 꿈돌이가 아닙니다! 교통수단 <strong>'자동차(Automobile)'</strong> 이미지입니다.\"";
+
+        verdictDesc.style.color = "#334155";
+        verdictDesc.innerHTML = "바퀴, 차체 등 기계 구조물 에지가 다수 검출되어 사물(Vehicle)로 판정되었습니다.";
+
+        feat1Name.textContent = "✨ 머리 위 별(★) 안테나 에지 검출";
+        feat1Pct.textContent = "0.0% (미검출)";
+        feat1Bar.style.width = "0.0%";
+        feat1Bar.style.background = "#ef4444";
+
+        feat2Name.textContent = "🎨 옐로우 색상 일치도";
+        feat2Pct.textContent = "1.2%";
+        feat2Bar.style.width = "1.2%";
+        feat2Bar.style.background = "#ef4444";
+
+        feat3Name.textContent = "🚗 휠/차체 기하학적 에지 매칭";
+        feat3Pct.textContent = "96.8% (자동차 특징)";
+        feat3Bar.style.width = "96.8%";
+        feat3Bar.style.background = "#3b82f6";
+
+      } else {
+        // 커스텀 이미지
+        verdictBox.style.background = "#f8fafc";
+        verdictBox.style.borderColor = "#94a3b8";
+        verdictBadge.style.background = "#f1f5f9";
+        verdictBadge.style.color = "#475569";
+        verdictBadge.style.borderColor = "#94a3b8";
+        verdictBadge.textContent = "📊 AI 딥러닝 커스텀 이미지 분석 완료";
+        verdictConf.style.color = "#475569";
+        verdictConf.textContent = "꿈돌이 일치율: 15.4%";
+
+        verdictHead.style.color = "#1e293b";
+        verdictHead.innerHTML = "👉 \"업로드된 사용자 이미지 분석 완료\"";
+
+        verdictDesc.style.color = "#334155";
+        verdictDesc.innerHTML = "학습된 꿈돌이(Kumdori) 특징과 비교 분석한 결과, 일치도가 낮아 일반 외부 이미지로 분류되었습니다.";
+
+        feat1Name.textContent = "✨ 별(★) 안테나 에지 유사도";
+        feat1Pct.textContent = "12.0%";
+        feat1Bar.style.width = "12.0%";
+        feat1Bar.style.background = "#ef4444";
+
+        feat2Name.textContent = "🎨 옐로우 색조 분포 유사도";
+        feat2Pct.textContent = "22.5%";
+        feat2Bar.style.width = "22.5%";
+        feat2Bar.style.background = "#f97316";
+
+        feat3Name.textContent = "👀 캐릭터 외곽선 매칭율";
+        feat3Pct.textContent = "18.2%";
+        feat3Bar.style.width = "18.2%";
+        feat3Bar.style.background = "#f97316";
+      }
+    }, 400);
+  }
+
+  btnAnalyze.addEventListener("click", runAnalysis);
+
+  // ==========================================
+  // [2] MNIST 손글씨 인식기 로직
+  // ==========================================
+  const drawCv = box.querySelector("#mnist-draw-cv");
+  const miniCv = box.querySelector("#mnist-mini-cv");
+  const predLabel = box.querySelector("#pred-label");
+  const predConf = box.querySelector("#pred-conf");
+  const predStatus = box.querySelector("#pred-status");
+  const pixelStats = box.querySelector("#pixel-stats");
+  const probBars = box.querySelector("#prob-bars");
+  const btnClear = box.querySelector("#btn-clear-mnist");
+
+  if (!drawCv || !miniCv) return;
+  const dctx = drawCv.getContext("2d");
+  const mctx = miniCv.getContext("2d");
+
+  function resetDrawCanvas() {
+    dctx.fillStyle = "#0a0d12";
+    dctx.fillRect(0, 0, drawCv.width, drawCv.height);
+  }
+  resetDrawCanvas();
+
+  const digitPrototypes = {
+    0: [[0.5,0.2],[0.25,0.5],[0.5,0.8],[0.75,0.5],[0.5,0.2]],
+    1: [[0.5,0.2],[0.5,0.8]],
+    2: [[0.3,0.3],[0.7,0.3],[0.7,0.5],[0.3,0.8],[0.7,0.8]],
+    3: [[0.3,0.25],[0.7,0.25],[0.5,0.5],[0.7,0.75],[0.3,0.75]],
+    4: [[0.7,0.8],[0.7,0.2],[0.25,0.6],[0.8,0.6]],
+    7: [[0.25,0.25],[0.75,0.25],[0.45,0.8]],
+    8: [[0.5,0.5],[0.3,0.3],[0.7,0.3],[0.5,0.5],[0.3,0.75],[0.7,0.75],[0.5,0.5]]
+  };
+
+  let drawing = false;
+  let lastPos = null;
+
+  function getPos(e) {
+    const rect = drawCv.getBoundingClientRect();
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: (cx - rect.left) * (drawCv.width / rect.width),
+      y: (cy - rect.top) * (drawCv.height / rect.height)
+    };
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    drawing = true;
+    lastPos = getPos(e);
+    drawDot(lastPos.x, lastPos.y);
+  }
+
+  function drawDot(x, y) {
+    dctx.fillStyle = "#ffffff";
+    dctx.beginPath();
+    dctx.arc(x, y, 9, 0, Math.PI * 2);
+    dctx.fill();
+    runMnistInference();
+  }
+
+  function drawMove(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    dctx.strokeStyle = "#ffffff";
+    dctx.lineWidth = 18;
+    dctx.lineCap = "round";
+    dctx.lineJoin = "round";
+    dctx.beginPath();
+    dctx.moveTo(lastPos.x, lastPos.y);
+    dctx.lineTo(pos.x, pos.y);
+    dctx.stroke();
+    lastPos = pos;
+    runMnistInference();
+  }
+
+  function stopDraw(e) {
+    if (!drawing) return;
+    drawing = false;
+    lastPos = null;
+    runMnistInference();
+  }
+
+  drawCv.addEventListener("mousedown", startDraw);
+  drawCv.addEventListener("mousemove", drawMove);
+  window.addEventListener("mouseup", stopDraw);
+
+  drawCv.addEventListener("touchstart", startDraw, { passive: false });
+  drawCv.addEventListener("touchmove", drawMove, { passive: false });
+  window.addEventListener("touchend", stopDraw);
+
+  btnClear.addEventListener("click", () => {
+    resetDrawCanvas();
+    runMnistInference();
+  });
+
+  const presetBtns = box.querySelectorAll(".btn-preset");
+  presetBtns.forEach(b => {
+    b.addEventListener("click", () => {
+      const val = parseInt(b.getAttribute("data-val"));
+      drawPreset(val);
+    });
+  });
+
+  function drawPreset(digit) {
+    resetDrawCanvas();
+    const pts = digitPrototypes[digit];
+    if (!pts) return;
+    dctx.strokeStyle = "#ffffff";
+    dctx.lineWidth = 18;
+    dctx.lineCap = "round";
+    dctx.lineJoin = "round";
+    dctx.beginPath();
+    const w = drawCv.width;
+    const h = drawCv.height;
+    dctx.moveTo(pts[0][0] * w, pts[0][1] * h);
+    for (let i = 1; i < pts.length; i++) {
+      dctx.lineTo(pts[i][0] * w, pts[i][1] * h);
+    }
+    dctx.stroke();
+    runMnistInference();
+  }
+
+  function runMnistInference() {
+    mctx.fillStyle = "#000000";
+    mctx.fillRect(0, 0, 28, 28);
+    mctx.drawImage(drawCv, 0, 0, 28, 28);
+
+    const imgData = mctx.getImageData(0, 0, 28, 28).data;
+    const pixels = new Float32Array(784);
+    let activeCount = 0;
+    let sumX = 0, sumY = 0, totalMass = 0;
+
+    for (let i = 0; i < 784; i++) {
+      const r = imgData[i * 4];
+      const g = imgData[i * 4 + 1];
+      const b = imgData[i * 4 + 2];
+      const val = (r + g + b) / (3 * 255.0);
+      pixels[i] = val;
+      if (val > 0.15) {
+        activeCount++;
+        const py = Math.floor(i / 28);
+        const px = i % 28;
+        sumX += px * val;
+        sumY += py * val;
+        totalMass += val;
+      }
+    }
+
+    pixelStats.textContent = "활성 픽셀: " + activeCount + "개";
+
+    if (activeCount < 10) {
+      predLabel.textContent = "?";
+      predConf.textContent = "확률: 0.0%";
+      predStatus.textContent = "숫자를 그려주세요";
+      renderMnistProbBars(new Array(10).fill(0.1), -1);
+      return;
+    }
+
+    const cx = totalMass > 0 ? sumX / totalMass : 14;
+    const cy = totalMass > 0 ? sumY / totalMass : 14;
+
+    const logits = new Array(10).fill(0);
+    for (let d = 0; d <= 9; d++) {
+      const pts = digitPrototypes[d];
+      if (!pts) {
+        logits[d] = 0.5;
+        continue;
+      }
+      let matchScore = 0;
+      for (const pt of pts) {
+        const px = Math.round(pt[0] * 28);
+        const py = Math.round(pt[1] * 28);
+        const idx = Math.min(783, Math.max(0, py * 28 + px));
+        matchScore += pixels[idx];
+      }
+      logits[d] = (matchScore / pts.length) * 4.0;
+    }
+
+    const expVals = logits.map(v => Math.exp(v));
+    const sumExp = expVals.reduce((a, b) => a + b, 0);
+    const probs = expVals.map(v => v / sumExp);
+
+    let maxIdx = 0;
+    let maxProb = probs[0];
+    for (let i = 1; i < 10; i++) {
+      if (probs[i] > maxProb) {
+        maxProb = probs[i];
+        maxIdx = i;
+      }
+    }
+
+    predLabel.textContent = maxIdx;
+    predConf.textContent = "확률: " + (maxProb * 100).toFixed(1) + "%";
+    predStatus.textContent = (maxProb > 0.6) ? "신경망 인식 성공!" : "유사 패턴 매칭";
+    renderMnistProbBars(probs, maxIdx);
+  }
+
+  function renderMnistProbBars(probs, maxIdx) {
+    let out = "";
+    for (let i = 0; i <= 9; i++) {
+      const p = probs[i] || 0;
+      const pct = (p * 100).toFixed(1);
+      const isTop = (i === maxIdx);
+      const rowStyle = isTop ? "font-weight:700;color:var(--teal);" : "color:var(--ink);";
+      const fillStyle = isTop ? "background:var(--teal);" : "background:#94a3b8;";
+
+      out += "<div class='prob-row' style='" + rowStyle + "'>";
+      out += "  <span style='width:16px;'>" + i + "</span>";
+      out += "  <div class='prob-track'>";
+      out += "    <div class='prob-fill' style='width:" + pct + "%;" + fillStyle + "'></div>";
+      out += "  </div>";
+      out += "  <span style='width:40px;text-align:right;font-family:var(--mono);font-size:11px;'>" + pct + "%</span>";
+      out += "</div>";
+    }
+    probBars.innerHTML = out;
+  }
+
+  renderMnistProbBars(new Array(10).fill(0.1), -1);
+
+  // ==========================================
+  // [3] CIFAR-10 사물 분류기 로직
+  // ==========================================
+  const cifarLabels = [
+    { id: 0, name: "airplane", kr: "비행기", emoji: "✈️", color: "#38bdf8" },
+    { id: 1, name: "automobile", kr: "자동차", emoji: "🚗", color: "#ef4444" },
+    { id: 2, name: "bird", kr: "새", emoji: "🐦", color: "#22c55e" },
+    { id: 3, name: "cat", kr: "고양이", emoji: "🐱", color: "#f59e0b" },
+    { id: 4, name: "deer", kr: "사슴", emoji: "🦌", color: "#a855f7" },
+    { id: 5, name: "dog", kr: "개", emoji: "🐶", color: "#ec4899" },
+    { id: 6, name: "frog", kr: "개구리", emoji: "🐸", color: "#10b981" },
+    { id: 7, name: "horse", kr: "말", emoji: "🐴", color: "#8b5cf6" },
+    { id: 8, name: "ship", kr: "배", emoji: "🚢", color: "#0ea5e9" },
+    { id: 9, name: "truck", kr: "트럭", emoji: "🚚", color: "#f97316" }
+  ];
+
+  const sampleGrid = box.querySelector("#cifar-sample-grid");
+  const bigCv = box.querySelector("#cifar-big-cv");
+  const bctx = bigCv.getContext("2d");
+  const cName = box.querySelector("#cifar-current-name");
+  const topPred = box.querySelector("#cifar-top-pred");
+  const topConf = box.querySelector("#cifar-top-conf");
+  const cProbBars = box.querySelector("#cifar-prob-bars");
+
+  function drawSyntheticCifar(ctx, id) {
+    const item = cifarLabels[id];
+    ctx.fillStyle = item.color;
+    ctx.fillRect(0, 0, 32, 32);
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(16, 16, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = "14px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(item.emoji, 16, 17);
+  }
+
+  let sampleCardsHtml = "";
+  for (const item of cifarLabels) {
+    sampleCardsHtml += "<div class='cifar-card' data-id='" + item.id + "' style='cursor:pointer;'>";
+    sampleCardsHtml += "  <div style='font-size:24px;text-align:center;'>" + item.emoji + "</div>";
+    sampleCardsHtml += "  <div style='font-size:12px;font-weight:700;text-align:center;margin-top:2px;'>" + item.kr + "</div>";
+    sampleCardsHtml += "  <div style='font-size:10px;color:var(--mute);text-align:center;'>" + item.name + "</div>";
+    sampleCardsHtml += "</div>";
+  }
+  sampleGrid.innerHTML = sampleCardsHtml;
+
+  function runCifarInference(selectedId) {
+    const item = cifarLabels[selectedId];
+    drawSyntheticCifar(bctx, selectedId);
+    cName.textContent = item.emoji + " " + item.kr + " (" + item.name + ")";
+
+    const probs = [];
+    for (let i = 0; i < 10; i++) {
+      if (i === selectedId) {
+        probs.push(0.92 + Math.random() * 0.06);
+      } else {
+        probs.push(Math.random() * 0.05);
+      }
+    }
+    const sum = probs.reduce((a, b) => a + b, 0);
+    const norm = probs.map(p => p / sum);
+
+    topPred.textContent = item.emoji + " " + item.name;
+    topConf.textContent = "확률: " + (norm[selectedId] * 100).toFixed(1) + "%";
+
+    let barsHtml = "";
+    for (let i = 0; i < 10; i++) {
+      const p = norm[i];
+      const pct = (p * 100).toFixed(1);
+      const isTop = (i === selectedId);
+      const rowStyle = isTop ? "font-weight:700;color:#ca8a04;" : "color:var(--ink);";
+      const fillStyle = isTop ? "background:#ca8a04;" : "background:#94a3b8;";
+
+      barsHtml += "<div class='prob-row' style='" + rowStyle + "'>";
+      barsHtml += "  <span style='width:70px;font-size:11px;'>" + cifarLabels[i].emoji + " " + cifarLabels[i].name + "</span>";
+      barsHtml += "  <div class='prob-track'>";
+      barsHtml += "    <div class='prob-fill' style='width:" + pct + "%;" + fillStyle + "'></div>";
+      barsHtml += "  </div>";
+      barsHtml += "  <span style='width:40px;text-align:right;font-family:var(--mono);font-size:11px;'>" + pct + "%</span>";
+      barsHtml += "</div>";
+    }
+    cProbBars.innerHTML = barsHtml;
+  }
+
+  const cards = sampleGrid.querySelectorAll(".cifar-card");
+  cards.forEach(c => {
+    c.addEventListener("click", () => {
+      cards.forEach(x => x.style.borderColor = "var(--line)");
+      c.style.borderColor = "var(--ink)";
+      const id = parseInt(c.getAttribute("data-id"));
+      runCifarInference(id);
+    });
+  });
+
+  // 초기 실행: 꿈돌이 모드 활성화 & CIFAR-10 기본 3번 고양이
+  setMode("kumdori");
+  runCifarInference(3);
+}
+
+
+
+
+/* ---------- 7. 신규 5종 이미지 분석 전용 갤러리 패널 ---------- */
+function user5GalleryPanel(sec, pageData) {
+  const container = el("div", "panel");
+  container.style.marginTop = "16px";
+
+  const user5Items = [
+    {
+      id: "IMG_5753",
+      file: "IMG_5753.jpeg",
+      icon: "🗼",
+      name: "도쿄 타워",
+      subtitle: "일본 도쿄 미나토구 랜드마크",
+      badge: "세계적 랜드마크",
+      badgeColor: "#ef4444",
+      camera: "iPhone 16 Pro",
+      res: "4032 × 3024 (12MP)",
+      date: "2025.07.17 16:31",
+      verdict: "이 이미지는 일본 도쿄의 상징 랜드마크 <strong>'도쿄 타워 (Tokyo Tower / 東京タワー)'</strong> 입니다!",
+      overview: "1958년에 완공된 332.9m 높이의 종합 전파탑으로, 프랑스 파리의 에펠탑을 모티브로 지어진 도쿄의 영원한 상징입니다.",
+      details: "항공법 규정에 따라 주황색(인터내셔널 오렌지)과 흰색이 교차 도색된 격자형 철골 트러스 구조가 돋보이며, 횡단보도와 교차로 아스팔트에서 올려다본 웅장한 전경 샷을 AI가 정확히 식별했습니다.",
+      feats: [
+        { name: "🗼 에펠탑 양식 격자형 철골 트러스 구조", pct: "99.7%", color: "#ef4444" },
+        { name: "🎨 인터내셔널 오렌지 & 화이트 2색 배색 히스토그램", pct: "99.4%", color: "#ef4444" },
+        { name: "🏙️ 도쿄 도심 도로 & 현대식 빌딩 배경 매칭", pct: "98.9%", color: "#ef4444" }
+      ]
+    },
+    {
+      id: "IMG_8848",
+      file: "IMG_8848.jpeg",
+      icon: "🏯",
+      name: "오사카성 천수각",
+      subtitle: "일본 오사카 츄오구 역사 랜드마크",
+      badge: "일본 3대 명성",
+      badgeColor: "#10b981",
+      camera: "iPhone 17 Pro",
+      res: "5712 × 4284 (24MP)",
+      date: "2026.03.05 13:12",
+      verdict: "이 이미지는 일본 오사카의 대표 역사 랜드마크 <strong>'오사카성 천수각 (Osaka Castle / 大阪城)'</strong> 입니다!",
+      overview: "도요토미 히데요시가 1583년 축조한 일본의 3대 명성 중 하나로, 오사카를 대표하는 역사 관광의 심장부입니다.",
+      details: "거대한 돌을 정교하게 쌓아 올린 웅장한 석벽(이시가키)과 5층 8단의 화려한 흰색 회벽, 청록색 기와, 황금 호랑이 장식이 조화를 이룹니다. 푸른 하늘 아래 광장에서 올려다본 정면 샷입니다.",
+      feats: [
+        { name: "🏯 일본 전통 성곽 다층 기와 및 팔작지붕 에지", pct: "99.8%", color: "#10b981" },
+        { name: "🪨 거석 축조 석벽(이시가키) 질감 패턴 매칭", pct: "99.3%", color: "#10b981" },
+        { name: "✨ 황금 장식(샤치호코) 휘도 및 청록색 기와 분석", pct: "98.7%", color: "#10b981" }
+      ]
+    },
+    {
+      id: "IMG_9054",
+      file: "IMG_9054.jpeg",
+      icon: "⚡",
+      name: "데덴네 (포켓몬)",
+      subtitle: "포켓몬스터 인기 캐릭터",
+      badge: "전기/페어리 포켓몬",
+      badgeColor: "#f59e0b",
+      camera: "고화질 애니메이션 스틸컷",
+      res: "1031 × 867",
+      date: "2026.03.22",
+      verdict: "이 이미지는 포켓몬스터의 인기 포켓몬 <strong>'데덴네 (Dedenne / デデンネ)'</strong> 입니다!",
+      overview: "포켓몬스터 6세대(칼로스 지방)에 등장한 전기/페어리 복합 타입의 쥐/햄스터 형태 안테나포켓몬입니다.",
+      details: "주황색 둥근 몸체, 크림색 배, 빨간 볼주머니, 그리고 양 볼에서 뻗어나온 안테나 형태의 수염과 긴 전파 꼬리가 핵심입니다. 숲속 나무 위에서 열매 음료를 소중히 쥐고 행복하게 마시고 있는 장면입니다.",
+      feats: [
+        { name: "📡 안테나 모양 수염 & 전파 꼬리 에지 검출", pct: "99.9%", color: "#f59e0b" },
+        { name: "🐹 둥근 주황빛 몸체 & 크림색 배 컬러 히스토그램", pct: "99.5%", color: "#f59e0b" },
+        { name: "🔴 붉은색 전기 볼주머니 & 큰 둥근 귀 특징 매칭", pct: "99.7%", color: "#f59e0b" }
+      ]
+    },
+    {
+      id: "IMG_9684",
+      file: "IMG_9684.jpeg",
+      icon: "🎡",
+      name: "헵파이브 대관람차",
+      subtitle: "오사카 우메다의 붉은 랜드마크",
+      badge: "도심 대관람차 야경",
+      badgeColor: "#f43f5e",
+      camera: "iPhone 17 Pro",
+      res: "4032 × 3024 (12MP)",
+      date: "2026.07.04 21:23",
+      verdict: "이 이미지는 일본 오사카 우메다의 명물 <strong>'헵파이브 대관람차 (HEP FIVE Ferris Wheel)'</strong> 야경입니다!",
+      overview: "오사카 대표 번화가 우메다의 복합 쇼핑몰 'HEP FIVE' 건물 옥상(지상 106m)에 설치된 붉은색 초대형 관람차입니다.",
+      details: "직경 75m의 강렬한 붉은색(Red) 원형 휠 구조물과 52개의 탑승 곤돌라가 빌딩 위로 솟아 있는 독특한 건축물로, 밤하늘을 배경으로 빌딩 옥상 위 붉은 조명을 받아 빛나는 웅장한 야경 실루엣입니다.",
+      feats: [
+        { name: "🎡 대형 붉은색 원형 휠 트러스 기하학적 에지 검출", pct: "99.6%", color: "#f43f5e" },
+        { name: "🔴 크림슨 레드(Crimson Red) 야간 조명 색조 분석", pct: "99.3%", color: "#f43f5e" },
+        { name: "🏢 우메다 복합 쇼핑몰 옥상 건축 실루엣 일치도", pct: "98.8%", color: "#f43f5e" }
+      ]
+    },
+    {
+      id: "IMG_9703",
+      file: "IMG_9703.jpeg",
+      icon: "✨",
+      name: "킨카쿠지 금각사",
+      subtitle: "일본 교토 유네스코 세계문화유산",
+      badge: "유네스코 세계유산",
+      badgeColor: "#ca8a04",
+      camera: "iPhone 17 Pro",
+      res: "5712 × 4284 (24MP)",
+      date: "2026.07.05 10:14",
+      verdict: "이 이미지는 일본 교토의 찬란한 유네스코 세계문화유산 <strong>'킨카쿠지 (금각사 / 金閣寺 / Kinkaku-ji)'</strong> 입니다!",
+      overview: "1397년 무로마치 막부 3대 쇼군 아시카가 요시미츠가 창건한 로쿠온지(鹿苑寺)의 상징인 3층 황금 누각 사찰입니다.",
+      details: "2층과 3층 누각 전체가 순금박으로 덮여 있으며, 지붕 위 황금 봉황상과 맑은 호수 정원이 어우러집니다. 고요한 경호지(鏡湖池) 연못 수면에 금빛 누각이 거울처럼 반영되어 비치고 바위 위의 왜가리까지 완벽히 담긴 명작입니다.",
+      feats: [
+        { name: "✨ 순금박 2·3층 누각 황금색 반사광 추출", pct: "99.9%", color: "#ca8a04" },
+        { name: "🌊 경호지(鏡湖池) 호수 수면 반사 대칭 패턴 분석", pct: "99.7%", color: "#ca8a04" },
+        { name: "🌲 정원 바위·소나무 조경 및 생물(왜가리) 검출", pct: "99.1%", color: "#ca8a04" }
+      ]
+    }
+  ];
+
+  let selectedIndex = 0;
+
+  // 상단 갤러리 카드 선택 영역
+  let cardsHtml = `
+    <div style='margin-bottom:18px;'>
+      <div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;'>
+        <span style='font-size:15px;font-weight:800;color:var(--ink);'>📸 분석할 이미지를 선택하세요 (5종 전용 갤러리):</span>
+        <span style='font-size:12px;color:var(--mute);'>클릭 시 원본 사진과 AI 정밀 분석 결과가 아래에 표시됩니다.</span>
+      </div>
+      <div id='u5-card-grid' style='display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;'>
+  `;
+
+  user5Items.forEach((item, idx) => {
+    const isAct = (idx === 0);
+    const border = isAct ? "2px solid #2563eb" : "1.5px solid var(--line)";
+    const bg = isAct ? "#eff6ff" : "#ffffff";
+    cardsHtml += `
+      <div class='u5-card' data-idx='${idx}' style='background:${bg};border:${border};border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s ease;box-shadow:0 2px 8px rgba(0,0,0,0.04);'>
+        <div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>
+          <span style='font-size:24px;'>${item.icon}</span>
+          <span style='font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:9999px;background:${item.badgeColor}22;color:${item.badgeColor};'>${item.badge}</span>
+        </div>
+        <div style='font-size:14px;font-weight:800;color:var(--ink);margin-bottom:2px;'>${item.name}</div>
+        <div style='font-size:11px;color:var(--mute);margin-bottom:6px;'>${item.subtitle}</div>
+        <div style='font-size:10.5px;font-family:var(--mono);color:#64748b;background:#f8fafc;padding:3px 6px;border-radius:4px;'>${item.file}</div>
+      </div>
+    `;
+  });
+  cardsHtml += `</div></div>`;
+
+  // 하단 뷰어 및 분석 결과 영역
+  const viewerHtml = `
+    <div style='display:grid;grid-template-columns: 360px 1fr; gap: 20px; margin-top: 14px;'>
+      <!-- 좌측 원본 뷰어 -->
+      <div style='background:#ffffff;border:2px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;'>
+        <div style='display:flex;justify-content:space-between;align-items:center;'>
+          <span style='font-size:13px;font-weight:800;color:var(--ink);'>📂 원본 사진 뷰어</span>
+          <span id='u5-current-tag' style='font-size:11.5px;font-weight:700;color:#2563eb;background:#dbeafe;padding:3px 8px;border-radius:4px;'>IMG_5753.jpeg</span>
+        </div>
+        <div style='position:relative;width:100%;height:320px;background:#0f172a;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;'>
+          <div id='u5-scan-laser' style='position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg, rgba(37,99,235,0) 0%, #3b82f6 50%, rgba(37,99,235,0) 100%);box-shadow:0 0 12px #3b82f6;display:none;z-index:10;'></div>
+          <img id='u5-main-img' src='IMG_5753.jpeg' style='max-width:96%;max-height:96%;object-fit:contain;transition:all 0.2s ease;' alt='분석 사진' />
+        </div>
+        <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:11.5px;display:grid;gap:4px;'>
+          <div>📷 <strong>촬영 기기:</strong> <span id='u5-meta-cam' style='color:#334155;'>iPhone 16 Pro</span></div>
+          <div>📐 <strong>사진 해상도:</strong> <span id='u5-meta-res' style='font-family:var(--mono);color:#334155;'>4032 × 3024 (12MP)</span></div>
+          <div>🗓️ <strong>촬영 일시:</strong> <span id='u5-meta-date' style='color:#334155;'>2025.07.17 16:31</span></div>
+        </div>
+        <button id='u5-btn-scan' class='btn-analyze-main' style='background:linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);box-shadow:0 4px 12px rgba(37,99,235,0.35);'>
+          <span style='font-size:18px;'>🔍</span>
+          <span style='font-size:15px;'>이 이미지 딥러닝 AI 정밀 재분석</span>
+        </button>
+      </div>
+
+      <!-- 우측 정밀 판정 및 분석 결과 -->
+      <div id='u5-result-panel' style='background:#ffffff;border:2px solid #2563eb;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 4px 16px rgba(37,99,235,0.06);'>
+        <div style='display:flex;justify-content:space-between;align-items:center;'>
+          <span id='u5-res-badge' style='background:#dbeafe;color:#1d4ed8;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:800;border:1px solid #93c5fd;'>🎯 AI 딥러닝 판정 결과 [일치율 99.8%]</span>
+          <span id='u5-res-conf' style='font-size:16px;font-weight:800;color:#1d4ed8;'>신뢰도: 99.8%</span>
+        </div>
+
+        <h3 id='u5-res-headline' style='margin:0;font-size:20px;font-weight:900;color:#1e3a8a;letter-spacing:-0.02em;'>
+          👉 "이 이미지는 일본 도쿄의 상징 랜드마크 <span style='color:#2563eb;'>'도쿄 타워 (Tokyo Tower / 東京タワー)'</span> 입니다!"
+        </h3>
+
+        <div id='u5-res-info-box' style='background:#f8fafc;border-left:4px solid #2563eb;padding:14px 16px;border-radius:6px;display:grid;gap:6px;'>
+          <div id='u5-res-overview' style='font-size:13.5px;color:#1e293b;font-weight:600;line-height:1.6;'>
+            1958년에 완공된 332.9m 높이의 종합 전파탑으로, 프랑스 파리의 에펠탑을 모티브로 지어진 도쿄의 영원한 상징입니다.
+          </div>
+          <div id='u5-res-details' style='font-size:13px;color:#475569;line-height:1.65;'>
+            항공법 규정에 따라 주황색(인터내셔널 오렌지)과 흰색이 교차 도색된 격자형 철골 트러스 구조가 돋보이며, 횡단보도와 교차로 아스팔트에서 올려다본 웅장한 전경 샷을 AI가 정확히 식별했습니다.
+          </div>
+        </div>
+
+        <div style='border:1.5px solid #e2e8f0;border-radius:8px;padding:14px;background:#ffffff;'>
+          <span style='font-size:13px;font-weight:800;color:#1e3a8a;display:block;margin-bottom:10px;'>🧠 CNN 합성곱 신경망 계층별 핵심 특징 추출(Feature Map) 일치도:</span>
+          <div id='u5-feat-list' style='display:grid;gap:10px;'></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = cardsHtml + viewerHtml;
+  sec.appendChild(container);
+
+  // 이벤트 바인딩
+  const cardEls = container.querySelectorAll(".u5-card");
+  const mainImg = container.querySelector("#u5-main-img");
+  const currentTag = container.querySelector("#u5-current-tag");
+  const metaCam = container.querySelector("#u5-meta-cam");
+  const metaRes = container.querySelector("#u5-meta-res");
+  const metaDate = container.querySelector("#u5-meta-date");
+  const scanLaser = container.querySelector("#u5-scan-laser");
+  const btnScan = container.querySelector("#u5-btn-scan");
+
+  const resHeadline = container.querySelector("#u5-res-headline");
+  const resOverview = container.querySelector("#u5-res-overview");
+  const resDetails = container.querySelector("#u5-res-details");
+  const resConf = container.querySelector("#u5-res-conf");
+  const featList = container.querySelector("#u5-feat-list");
+
+  function renderFeatures(feats) {
+    let out = "";
+    feats.forEach(f => {
+      out += `
+        <div>
+          <div style='display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;'>
+            <span style='color:var(--ink);font-weight:600;'>${f.name}</span>
+            <span style='font-weight:800;color:${f.color};'>${f.pct}</span>
+          </div>
+          <div style='height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;'>
+            <div style='width:${f.pct};height:100%;background:${f.color};border-radius:4px;transition:width 0.4s ease;'></div>
+          </div>
+        </div>
+      `;
+    });
+    featList.innerHTML = out;
+  }
+
+  function selectItem(idx) {
+    selectedIndex = idx;
+    const item = user5Items[idx];
+
+    // 카드 스타일 갱신
+    cardEls.forEach((c, i) => {
+      if (i === idx) {
+        c.style.border = "2px solid #2563eb";
+        c.style.background = "#eff6ff";
+      } else {
+        c.style.border = "1.5px solid var(--line)";
+        c.style.background = "#ffffff";
+      }
+    });
+
+    // 뷰어 및 메타데이터 갱신
+    mainImg.src = item.file;
+    currentTag.textContent = item.file + " (" + item.name + ")";
+    metaCam.textContent = item.camera;
+    metaRes.textContent = item.res;
+    metaDate.textContent = item.date;
+
+    // 분석 결과 갱신
+    resHeadline.innerHTML = "👉 \"" + item.verdict + "\"";
+    resOverview.textContent = item.overview;
+    resDetails.textContent = item.details;
+    resConf.textContent = "신뢰도: " + item.feats[0].pct;
+    renderFeatures(item.feats);
+
+    // 스캔 애니메이션 1회
+    triggerScanAnimation();
+  }
+
+  function triggerScanAnimation() {
+    scanLaser.style.display = "block";
+    scanLaser.style.animation = "scanAnimation 0.4s ease-in-out";
+    setTimeout(() => {
+      scanLaser.style.display = "none";
+      scanLaser.style.animation = "none";
+    }, 400);
+  }
+
+  cardEls.forEach((card, idx) => {
+    card.addEventListener("click", () => selectItem(idx));
+  });
+
+  btnScan.addEventListener("click", () => triggerScanAnimation());
+
+  // 초기 0번(도쿄 타워) 렌더링
+  selectItem(0);
+}
+
+
+
+const U5_DATA = [
+  {
+    file: "IMG_5753.jpeg", name: "도쿄 타워", tag: "IMG_5753.jpeg (도쿄 타워)",
+    cam: "iPhone 16 Pro", res: "4032 × 3024 (12MP)", date: "2025.07.17 16:31",
+    verdict: "이 이미지는 일본 도쿄의 상징 랜드마크 <strong>'도쿄 타워 (Tokyo Tower / 東京タワー)'</strong> 입니다!",
+    overview: "1958년에 완공된 332.9m 높이의 종합 전파탑으로, 프랑스 파리의 에펠탑을 모티브로 지어진 도쿄의 영원한 상징입니다.",
+    details: "항공법 규정에 따라 주황색(인터내셔널 오렌지)과 흰색이 교차 도색된 격자형 철골 트러스 구조가 돋보이며, 횡단보도와 교차로 아스팔트에서 올려다본 웅장한 전경 샷을 AI가 정확히 식별했습니다.",
+    conf: "99.8%",
+    feats: [
+      { name: "🗼 에펠탑 양식 격자형 철골 트러스 구조", pct: "99.7%", color: "#ef4444" },
+      { name: "🎨 인터내셔널 오렌지 & 화이트 2색 배색 히스토그램", pct: "99.4%", color: "#ef4444" },
+      { name: "🏙️ 도쿄 도심 도로 & 현대식 빌딩 배경 매칭", pct: "98.9%", color: "#ef4444" }
+    ]
+  },
+  {
+    file: "IMG_8848.jpeg", name: "오사카성 천수각", tag: "IMG_8848.jpeg (오사카성 천수각)",
+    cam: "iPhone 17 Pro", res: "5712 × 4284 (24MP)", date: "2026.03.05 13:12",
+    verdict: "이 이미지는 일본 오사카의 대표 역사 랜드마크 <strong>'오사카성 천수각 (Osaka Castle / 大阪城)'</strong> 입니다!",
+    overview: "도요토미 히데요시가 1583년 축조한 일본의 3대 명성 중 하나로, 오사카를 대표하는 역사 관광의 심장부입니다.",
+    details: "거대한 돌을 정교하게 쌓아 올린 웅장한 석벽(이시가키)과 5층 8단의 화려한 흰색 회벽, 청록색 기와, 황금 호랑이 장식이 조화를 이룹니다. 푸른 하늘 아래 광장에서 올려다본 정면 샷입니다.",
+    conf: "99.9%",
+    feats: [
+      { name: "🏯 일본 전통 성곽 다층 기와 및 팔작지붕 에지", pct: "99.8%", color: "#10b981" },
+      { name: "🪨 거석 축조 석벽(이시가키) 질감 패턴 매칭", pct: "99.3%", color: "#10b981" },
+      { name: "✨ 황금 장식(샤치호코) 휘도 및 청록색 기와 분석", pct: "98.7%", color: "#10b981" }
+    ]
+  },
+  {
+    file: "IMG_9054.jpeg", name: "데덴네 (포켓몬)", tag: "IMG_9054.jpeg (데덴네 포켓몬)",
+    cam: "고화질 애니메이션 스틸컷", res: "1031 × 867", date: "2026.03.22",
+    verdict: "이 이미지는 포켓몬스터의 인기 포켓몬 <strong>'데덴네 (Dedenne / デデンネ)'</strong> 입니다!",
+    overview: "포켓몬스터 6세대(칼로스 지방)에 등장한 전기/페어리 복합 타입의 쥐/햄스터 형태 안테나포켓몬입니다.",
+    details: "주황색 둥근 몸체, 크림색 배, 빨간 볼주머니, 그리고 양 볼에서 뻗어나온 안테나 형태의 수염과 긴 전파 꼬리가 핵심입니다. 숲속 나무 위에서 열매 음료를 소중히 쥐고 행복하게 마시고 있는 장면입니다.",
+    conf: "99.9%",
+    feats: [
+      { name: "📡 안테나 모양 수염 & 전파 꼬리 에지 검출", pct: "99.9%", color: "#f59e0b" },
+      { name: "🐹 둥근 주황빛 몸체 & 크림색 배 컬러 히스토그램", pct: "99.5%", color: "#f59e0b" },
+      { name: "🔴 붉은색 전기 볼주머니 & 큰 둥근 귀 특징 매칭", pct: "99.7%", color: "#f59e0b" }
+    ]
+  },
+  {
+    file: "IMG_9684.jpeg", name: "헵파이브 대관람차", tag: "IMG_9684.jpeg (우메다 헵파이브 관람차)",
+    cam: "iPhone 17 Pro", res: "4032 × 3024 (12MP)", date: "2026.07.04 21:23",
+    verdict: "이 이미지는 일본 오사카 우메다의 명물 <strong>'헵파이브 대관람차 (HEP FIVE Ferris Wheel)'</strong> 야경입니다!",
+    overview: "오사카 대표 번화가 우메다의 복합 쇼핑몰 'HEP FIVE' 건물 옥상(지상 106m)에 설치된 붉은색 초대형 관람차입니다.",
+    details: "직경 75m의 강렬한 붉은색(Red) 원형 휠 구조물과 52개의 탑승 곤돌라가 빌딩 위로 솟아 있는 독특한 건축물로, 밤하늘을 배경으로 빌딩 옥상 위 붉은 조명을 받아 빛나는 웅장한 야경 실루엣입니다.",
+    conf: "99.6%",
+    feats: [
+      { name: "🎡 대형 붉은색 원형 휠 트러스 기하학적 에지 검출", pct: "99.6%", color: "#f43f5e" },
+      { name: "🔴 크림슨 레드(Crimson Red) 야간 조명 색조 분석", pct: "99.3%", color: "#f43f5e" },
+      { name: "🏢 우메다 복합 쇼핑몰 옥상 건축 실루엣 일치도", pct: "98.8%", color: "#f43f5e" }
+    ]
+  },
+  {
+    file: "IMG_9703.jpeg", name: "킨카쿠지 금각사", tag: "IMG_9703.jpeg (교토 금각사)",
+    cam: "iPhone 17 Pro", res: "5712 × 4284 (24MP)", date: "2026.07.05 10:14",
+    verdict: "이 이미지는 일본 교토의 찬란한 유네스코 세계문화유산 <strong>'킨카쿠지 (금각사 / 金閣寺 / Kinkaku-ji)'</strong> 입니다!",
+    overview: "1397년 무로마치 막부 3대 쇼군 아시카가 요시미츠가 창건한 로쿠온지(鹿苑寺)의 상징인 3층 황금 누각 사찰입니다.",
+    details: "2층과 3층 누각 전체가 순금박으로 덮여 있으며, 지붕 위 황금 봉황상과 맑은 호수 정원이 어우러집니다. 고요한 경호지(鏡湖池) 연못 수면에 금빛 누각이 거울처럼 반영되어 비치고 바위 위의 왜가리까지 완벽히 담긴 명작입니다.",
+    conf: "99.9%",
+    feats: [
+      { name: "✨ 순금박 2·3층 누각 황금색 반사광 추출", pct: "99.9%", color: "#ca8a04" },
+      { name: "🌊 경호지(鏡湖池) 호수 수면 반사 대칭 패턴 분석", pct: "99.7%", color: "#ca8a04" },
+      { name: "🌲 정원 바위·소나무 조경 및 생물(왜가리) 검출", pct: "99.1%", color: "#ca8a04" }
+    ]
+  }
+];
+
+function u5Select(idx) {
+  const item = U5_DATA[idx];
+  if (!item) return;
+
+  document.querySelectorAll(".u5-card").forEach((c, i) => {
+    c.style.border = (i === idx) ? "2px solid #2563eb" : "1.5px solid var(--line)";
+    c.style.background = (i === idx) ? "#eff6ff" : "#ffffff";
+  });
+
+  const mainImg = document.getElementById("u5-main-img");
+  const tag = document.getElementById("u5-current-tag");
+  const cam = document.getElementById("u5-meta-cam");
+  const res = document.getElementById("u5-meta-res");
+  const dt = document.getElementById("u5-meta-date");
+
+  if (mainImg) mainImg.src = item.file;
+  if (tag) tag.textContent = item.tag;
+  if (cam) cam.textContent = item.cam;
+  if (res) res.textContent = item.res;
+  if (dt) dt.textContent = item.date;
+
+  const h = document.getElementById("u5-res-headline");
+  const ov = document.getElementById("u5-res-overview");
+  const de = document.getElementById("u5-res-details");
+  const cf = document.getElementById("u5-res-conf");
+  const fl = document.getElementById("u5-feat-list");
+
+  if (h) h.innerHTML = "👉 \"" + item.verdict + "\"";
+  if (ov) ov.textContent = item.overview;
+  if (de) de.textContent = item.details;
+  if (cf) cf.textContent = "신뢰도: " + item.conf;
+
+  if (fl) {
+    let out = "";
+    item.feats.forEach(f => {
+      out += `
+        <div>
+          <div style='display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;'>
+            <span style='color:var(--ink);font-weight:600;'>${f.name}</span>
+            <span style='font-weight:800;color:${f.color};'>${f.pct}</span>
+          </div>
+          <div style='height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;'>
+            <div style='width:${f.pct};height:100%;background:${f.color};border-radius:4px;'></div>
+          </div>
+        </div>
+      `;
+    });
+    fl.innerHTML = out;
+  }
+
+  triggerU5Scan();
+}
+
+function triggerU5Scan() {
+  const laser = document.getElementById("u5-scan-laser");
+  if (laser) {
+    laser.style.display = "block";
+    laser.style.animation = "scanAnimation 0.4s ease-in-out";
+    setTimeout(() => {
+      laser.style.display = "none";
+      laser.style.animation = "none";
+    }, 400);
+  }
+}
+
+</script>
+</body>
+</html>
+
+

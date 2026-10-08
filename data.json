@@ -1,0 +1,678 @@
+{
+ "pages": [
+  {
+   "id": 1,
+   "label": "이미지 미리보기",
+   "title": "샘플 이미지셋과 차원",
+   "summary": "MNIST(손글씨)와 CIFAR10(사물) 이미지의 모양을 확인하고, 배열의 차원(shape)을 읽는 법을 익힙니다.",
+   "points": [
+    "MNIST: 흑백 28×28 이미지 60,000장",
+    "CIFAR10: 컬러 32×32×3 이미지 50,000장 (10종류)",
+    "정답(y)은 MNIST는 (60000,), CIFAR10은 (50000, 1) 로 모양이 다릅니다."
+   ],
+   "dims": [
+    {
+     "n": "d1",
+     "shape": [
+      5
+     ]
+    },
+    {
+     "n": "d2",
+     "shape": [
+      4,
+      5
+     ]
+    },
+    {
+     "n": "d3",
+     "shape": [
+      3,
+      4,
+      5
+     ]
+    },
+    {
+     "n": "d4",
+     "shape": [
+      2,
+      3,
+      4,
+      5
+     ]
+    }
+   ],
+   "labels": [
+    {
+     "n": "mnist_y",
+     "shape": "(60000,)"
+    },
+    {
+     "n": "cifar_y",
+     "shape": "(50000, 1)"
+    }
+   ],
+   "code": [
+    {
+     "caption": "",
+     "src": "import tensorflow as tf"
+    },
+    {
+     "caption": "",
+     "src": "(mnist_x, mnist_y), _=tf.keras.datasets.mnist.load_data()\nprint(mnist_x.shape, mnist_y.shape)\n\n(cifar_x, cifar_y), _=tf.keras.datasets.cifar10.load_data()\nprint(cifar_x.shape, cifar_y.shape)"
+    },
+    {
+     "caption": "",
+     "src": "print(mnist_y[0:10])\n\nimport matplotlib.pyplot as plt\nplt.imshow(mnist_x[4], cmap='gray')"
+    },
+    {
+     "caption": "",
+     "src": "print(cifar_y[0:10])\n\nimport matplotlib.pyplot as plt\nplt.imshow(cifar_x[0])"
+    },
+    {
+     "caption": "",
+     "src": "import numpy as np\n\nd1 = np.array([1, 2, 3, 4, 5])\nprint(d1.shape)\n\nd2 = np.array([d1, d1, d1, d1])\nprint(d2.shape)\n\nd3 = np.array([d2, d2, d2])\nprint(d3.shape)\n\nd4 = np.array([d3, d3])\nprint(d4.shape)"
+    },
+    {
+     "caption": "",
+     "src": "print(mnist_y.shape)\nprint(cifar_y.shape)"
+    },
+    {
+     "caption": "",
+     "src": "x1 = np.array([1, 2, 3, 4, 5])\nprint(x1.shape)\nprint(mnist_y[0:5])\nprint(mnist_y[0:5].shape)\n\nx2 = np.array([[1, 2, 3, 4, 5]])\nprint(x2.shape)\n\nx3 = np.array([[1], [2], [3], [4], [5]])\nprint(x3.shape)\nprint(cifar_y[0:5])\nprint(cifar_y[0:5].shape)"
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "label": "Flatten",
+   "title": "Flatten Layer로 이미지 학습",
+   "summary": "28×28 이미지를 784개 숫자로 펴는 일을 reshape로 직접 하거나, Flatten 층에 맡길 수 있습니다. 결과는 같습니다.",
+   "points": [
+    "reshape: 데이터를 미리 (60000, 784)로 변환",
+    "Flatten: 모델 안에서 (28, 28)을 784로 변환 → 데이터 전처리 불필요"
+   ],
+   "models": [
+    {
+     "name": "reshape (Input 784)",
+     "input": [
+      784
+     ],
+     "layers": [
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 65940
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 66790
+    },
+    {
+     "name": "Flatten (Input 28×28)",
+     "input": [
+      28,
+      28
+     ],
+     "layers": [
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        784
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 65940
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 66790
+    }
+   ],
+   "code": []
+  },
+  {
+   "id": 3,
+   "label": "Convolution",
+   "title": "Convolution Layer",
+   "summary": "5×5 필터가 이미지 위를 미끄러지며 특징 지도(feature map)를 만듭니다. 마우스를 왼쪽 이미지 위에 올려 보세요.",
+   "points": [
+    "필터 5×5, padding 없음 → 28 − 5 + 1 = 24",
+    "Conv 3개 → Conv 6개 → Flatten → Dense 84 → Dense 10"
+   ],
+   "models": [
+    {
+     "name": "Conv ×2",
+     "input": [
+      28,
+      28,
+      1
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 3개 · 5×5",
+       "out": [
+        24,
+        24,
+        3
+       ],
+       "params": 78
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5",
+       "out": [
+        20,
+        20,
+        6
+       ],
+       "params": 456
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        2400
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 201684
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 203068
+    }
+   ],
+   "code": []
+  },
+  {
+   "id": 4,
+   "label": "Pooling",
+   "title": "Pooling Layer",
+   "summary": "MaxPool은 2×2 칸마다 최댓값만 남겨 크기를 절반으로 줄입니다. 파라미터가 20만 개에서 약 1만 개로 줄어듭니다.",
+   "points": [
+    "Flatten 직전 크기가 20×20×6 → 4×4×6 으로 감소",
+    "노트북의 직접 계산식: 84×(2400+1) + 10×(84+1) + 78 + 456"
+   ],
+   "models": [
+    {
+     "name": "Pooling 없음",
+     "input": [
+      28,
+      28,
+      1
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 3개 · 5×5",
+       "out": [
+        24,
+        24,
+        3
+       ],
+       "params": 78
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5",
+       "out": [
+        20,
+        20,
+        6
+       ],
+       "params": 456
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        2400
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 201684
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 203068
+    },
+    {
+     "name": "Pooling 사용",
+     "input": [
+      28,
+      28,
+      1
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 3개 · 5×5",
+       "out": [
+        24,
+        24,
+        3
+       ],
+       "params": 78
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        12,
+        12,
+        3
+       ],
+       "params": 0
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5",
+       "out": [
+        8,
+        8,
+        6
+       ],
+       "params": 456
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        4,
+        4,
+        6
+       ],
+       "params": 0
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        96
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 8148
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 9532
+    }
+   ],
+   "code": []
+  },
+  {
+   "id": 5,
+   "label": "LeNet-5",
+   "title": "LeNet-5 · MNIST와 CIFAR10",
+   "summary": "고전 CNN LeNet-5 구조를 그대로 만들어 MNIST(흑백)와 CIFAR10(컬러)에 적용합니다.",
+   "points": [
+    "Conv 6 → Pool → Conv 16 → Pool → Dense 120 → 84 → 10",
+    "MNIST는 padding='same'으로 28×28을 유지, CIFAR10은 입력 채널이 3"
+   ],
+   "models": [
+    {
+     "name": "MNIST",
+     "input": [
+      28,
+      28,
+      1
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5 · same",
+       "out": [
+        28,
+        28,
+        6
+       ],
+       "params": 156
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        14,
+        14,
+        6
+       ],
+       "params": 0
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 16개 · 5×5",
+       "out": [
+        10,
+        10,
+        16
+       ],
+       "params": 2416
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        5,
+        5,
+        16
+       ],
+       "params": 0
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        400
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 120",
+       "out": [
+        120
+       ],
+       "params": 48120
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 10164
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 61706
+    },
+    {
+     "name": "CIFAR10",
+     "input": [
+      32,
+      32,
+      3
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5",
+       "out": [
+        28,
+        28,
+        6
+       ],
+       "params": 456
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        14,
+        14,
+        6
+       ],
+       "params": 0
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 16개 · 5×5",
+       "out": [
+        10,
+        10,
+        16
+       ],
+       "params": 2416
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        5,
+        5,
+        16
+       ],
+       "params": 0
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        400
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 120",
+       "out": [
+        120
+       ],
+       "params": 48120
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 10164
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 62006
+    }
+   ],
+   "code": []
+  },
+  {
+   "id": 6,
+   "label": "내 이미지",
+   "title": "내 이미지 사용 (notMNIST)",
+   "summary": "직접 내려받은 PNG 폴더(A~J)를 읽어 학습 데이터로 만들고 LeNet-5로 분류합니다.",
+   "points": [
+    "이미지 18,724장 · 28×28 · 10개 클래스 (폴더 이름이 정답)"
+   ],
+   "classes": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J"
+   ],
+   "steps": [
+    "glob으로 PNG 경로 모으기",
+    "np.random.permutation으로 섞기",
+    "plt.imread로 이미지 읽기",
+    "폴더 이름을 정답(dependent)으로",
+    "reshape(18724, 28, 28, 1)",
+    "pd.get_dummies로 원-핫 인코딩"
+   ],
+   "models": [
+    {
+     "name": "LeNet-5",
+     "input": [
+      28,
+      28,
+      1
+     ],
+     "layers": [
+      {
+       "type": "conv",
+       "desc": "Conv2D 6개 · 5×5 · same",
+       "out": [
+        28,
+        28,
+        6
+       ],
+       "params": 156
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        14,
+        14,
+        6
+       ],
+       "params": 0
+      },
+      {
+       "type": "conv",
+       "desc": "Conv2D 16개 · 5×5",
+       "out": [
+        10,
+        10,
+        16
+       ],
+       "params": 2416
+      },
+      {
+       "type": "pool",
+       "desc": "MaxPool 2×2",
+       "out": [
+        5,
+        5,
+        16
+       ],
+       "params": 0
+      },
+      {
+       "type": "flatten",
+       "desc": "Flatten",
+       "out": [
+        400
+       ],
+       "params": 0
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 120",
+       "out": [
+        120
+       ],
+       "params": 48120
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 84",
+       "out": [
+        84
+       ],
+       "params": 10164
+      },
+      {
+       "type": "dense",
+       "desc": "Dense 10",
+       "out": [
+        10
+       ],
+       "params": 850
+      }
+     ],
+     "total": 61706
+    }
+   ],
+   "code": []
+  },
+  {
+   "id": 7,
+   "label": "신규 5종 이미지 분석",
+   "title": "사용자 추가 이미지 5종 딥러닝 AI 정밀 분석",
+   "summary": "도쿄 타워, 오사카성, 데덴네, 헵파이브 관람차, 교토 금각사 등 5장의 고해상도 이미지를 7번 탭에서 독립적으로 정밀 분석하고 시각화합니다.",
+   "points": [
+    "도쿄 타워 (IMG_5753.jpeg): 332.9m 에펠탑 양식 격자 철골 및 오렌지 배색 검출",
+    "오사카성 천수각 (IMG_8848.jpeg): 전통 다층 기와 및 거석 석벽(이시가키) 매칭",
+    "데덴네 (IMG_9054.jpeg): 포켓몬스터 6세대 안테나포켓몬 전기 볼주머니 특징",
+    "헵파이브 대관람차 (IMG_9684.jpeg): 우메다 빌딩 옥상 크림슨 레드 휠 야경 실루엣",
+    "킨카쿠지 금각사 (IMG_9703.jpeg): 경호지 수면 반사 및 순금박 누각 황금색 반사광"
+   ],
+   "code": []
+  }
+ ]
+}
